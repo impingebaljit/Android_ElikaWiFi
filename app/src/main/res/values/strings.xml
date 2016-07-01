@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">ElikaWifi</string>
+    <string name="setup_elika">Setup Elika Device</string>
+    <string name="select_your_device">Select your Device</string>
+    <string name="select_elika_wifi">Select the Elika Wi-Fi</string>
+    <string name="waiting_4_connection">Waiting for connection…</string>
+
+    <string name="elika_460">Elika 460</string>
+    <string name="elika_92">Elika 92</string>
+    <string name="elika_76">Elika 76</string>
+
+    <string name="home">Home</string>
+    <string name="wifi_setup_wizard">Wifi Setup Wizard</string>
+    <string name="setup_wizard">Setup Wizard</string>
+
+
+    <string name="enter_password">Enter password</string>
+    <string name="cancel">CANCEL</string>
+    <string name="save">SAVE</string>
+
+
+</resources>

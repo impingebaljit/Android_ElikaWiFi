@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.elikaaccess.ActivitySelectDevice"
+    tools:showIn="@layout/activity_select_device">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/header_view" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="20dp"
+        android:background="@drawable/bg_shape_button"
+        android:gravity="center"
+        android:text="@string/select_your_device"
+        android:textColor="@color/text_blue"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:typeface="normal" />
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+
+            <!-- Product 1 -->
+            <LinearLayout
+                android:id="@+id/product_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_product"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:padding="4dp"
+                    android:contentDescription="@string/select_your_device"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/elika_460" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:text="@string/elika_460"
+                    android:textColor="@color/text_blue"
+                    android:textSize="20sp"
+                    android:textStyle="normal"
+                    android:typeface="normal"
+                    tools:ignore="RtlHardcoded" />
+            </LinearLayout>
+
+
+            <!-- Product 2 -->
+            <LinearLayout
+                android:id="@+id/product_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_product"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:contentDescription="@string/select_your_device"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/elika_92" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:text="@string/elika_92"
+                    android:textColor="@color/text_blue"
+                    android:textSize="20sp"
+                    android:textStyle="normal"
+                    android:typeface="normal"
+                    tools:ignore="RtlHardcoded" />
+            </LinearLayout>
+
+            <!-- Product 3 -->
+            <LinearLayout
+                android:id="@+id/product_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_product"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:contentDescription="@string/select_your_device"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/elika_76" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:text="@string/elika_76"
+                    android:textColor="@color/text_blue"
+                    android:textSize="20sp"
+                    android:textStyle="normal"
+                    android:typeface="normal"
+                    tools:ignore="RtlHardcoded" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

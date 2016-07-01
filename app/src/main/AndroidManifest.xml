@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.elikaaccess" >
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission
+        android:name="android.permission.UPDATE_DEVICE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/wifi_search"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup" >
+        <activity
+            android:name="com.elikaaccess.ActivitySetupElika"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.elikaaccess.ActivitySelectDevice"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.elikaaccess.ActivitySetupWizard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.elikaaccess.ActivityConnectingWifi"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.elikaaccess.ActivityWifiConnectStatus"
+            android:screenOrientation="portrait" />
+
+    </application>
+
+</manifest>

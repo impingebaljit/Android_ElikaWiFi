@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+
+    tools:context="com.elikaaccess.ActivitySetupWizard">
+
+    <include
+        layout="@layout/header_view"
+        android:id="@+id/include" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dp"
+        android:background="@drawable/bg_product">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/select_elika_wifi"
+            android:textSize="20sp"
+            android:textStyle="normal"
+            android:typeface="normal"
+            android:textColor="@color/text_blue"
+            android:gravity="center_horizontal"
+            android:padding="5dp"
+            android:background="@color/light_grey"/>
+
+
+        <ListView
+            android:id="@+id/listWifi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</LinearLayout>
