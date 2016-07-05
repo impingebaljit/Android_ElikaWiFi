@@ -24,8 +24,8 @@
             android:text="@string/select_elika_wifi"
             android:textSize="20sp"
             android:textStyle="normal"
-            android:typeface="normal"
-            android:textColor="@color/text_blue"
+            android:typeface="sans"
+            android:textColor="@color/text_green"
             android:gravity="center_horizontal"
             android:padding="5dp"
             android:background="@color/light_grey"/>

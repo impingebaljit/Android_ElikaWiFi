@@ -35,15 +35,24 @@ public class ActivitySetupElika extends Activity implements View.OnClickListener
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
 
         txtSetup.setTextColor(Color.GRAY);
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(context, ActivitySelectDevice.class));
-                txtSetup.setTextColor(getResources().getColor(R.color.text_blue));
+                switch (v.getId()) {
+                    case R.id.textSetup:
+                        startActivity(new Intent(context, ActivitySelectDevice.class)); //ActivitySelectDevice
+                        break;
+
+                    case R.id.imgSetup:
+                        startActivity(new Intent(context, ActivitySearchLocalWifi.class)); //ActivitySelectDevice
+                        break;
+
+                }
+                txtSetup.setTextColor(getResources().getColor(R.color.white));
             }
         }, 150);
 

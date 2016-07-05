@@ -4,6 +4,7 @@
     <string name="select_your_device">Select your Device</string>
     <string name="select_elika_wifi">Select the Elika Wi-Fi</string>
     <string name="waiting_4_connection">Waiting for connection…</string>
+    <string name="looking_4_wifi">Looking for available\nWifi Networks…</string>
 
     <string name="elika_460">Elika 460</string>
     <string name="elika_92">Elika 92</string>
@@ -12,11 +13,18 @@
     <string name="home">Home</string>
     <string name="wifi_setup_wizard">Wifi Setup Wizard</string>
     <string name="setup_wizard">Setup Wizard</string>
+    <string name="searching_elika">Searching Elika</string>
+    <string name="searching_wifi">Searching Wifi</string>
+    <string name="choose_network">Choose a network…</string>
+
 
 
     <string name="enter_password">Enter password</string>
     <string name="cancel">CANCEL</string>
     <string name="save">SAVE</string>
+    <string name="join">JOIN</string>
+    <string name="try_again">Try Again</string>
+    <string name="look_for_wifi">Look for Local Wi-Fi</string>
 
 
 </resources>

@@ -8,17 +8,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.elikaaccess.adapter.WifiScanAdapter;
 
@@ -27,7 +31,8 @@ import java.util.List;
 public class ActivitySetupWizard extends Activity implements View.OnClickListener {
 
     private Context context = this;
-    private WifiManager wifiManager;
+    public static WifiManager wifiManager;
+    private LocationManager locationManager;
     private ListView listViewWifi;
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 101;
 
@@ -36,6 +41,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_wizard);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         View view = findViewById(R.id.include);
         view.findViewById(R.id.imgBack).setVisibility(View.VISIBLE);
@@ -54,6 +60,8 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         super.onResume();
 
         this.wifiStateChanges();
+
+        updateList();
     }
 
     @Override
@@ -62,7 +70,8 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // Do something with granted permission
             Log.e("LOG", "Update Wifi list - GRANTED PERMISSION");
-            updateList();
+            //updateList();
+            requestToEnableGPS();
         }
     }
 
@@ -72,18 +81,24 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     private void wifiStateChanges() {
         if (!wifiManager.isWifiEnabled())
             wifiManager.setWifiEnabled(true);
+
         wifiManager.startScan();
     }
 
     private BroadcastReceiver receiveWifiResults = new BroadcastReceiver() {
+        @SuppressWarnings("deprecation")
         @Override
         public void onReceive(Context c, Intent intent) {
             /** Update list once scan is complete **/
             Log.e("LOG", "Wifi scanning complete");
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                    && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ACCESS_COARSE_LOCATION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                else
+                    requestToEnableGPS();
+            }
             else {
                 updateList();
                 Log.e("LOG", "Update Wifi list - PreCode");
@@ -105,6 +120,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
                 ScanResult result = listAvailableWifi.get(position);
                 if (!result.capabilities.toUpperCase().contains("WPA")
                         && !result.capabilities.toUpperCase().contains("WPA"))
+
                     callNextScreen(result, ""); // Open network
                 else
                     askForPassword(result); // Password protected network
@@ -129,7 +145,6 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         switch (v.getId()) {
             case R.id.imgBack:
                 finish();
-
                 break;
         }
     }
@@ -137,7 +152,10 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     private void askForPassword(final ScanResult scanResult) {
         final Dialog dialog = new Dialog(context);
         dialog.setTitle(scanResult.SSID);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_ask_password);
+
+        ((TextView) dialog.findViewById(R.id.txtSSID)).setText(scanResult.SSID);
 
         final EditText editText = (EditText) dialog.findViewById(R.id.edtPassword);
         dialog.findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
@@ -172,5 +190,15 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         intent.putExtra("password", password);
         intent.putExtra("scanResult", scanResult);
         startActivity(intent);
+    }
+
+    private void requestToEnableGPS()
+    {
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.getProvider("gps") != null)
+            updateList();
+        else {
+            context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            Toast.makeText(context, "Please turn on GPS to avail our services", Toast.LENGTH_LONG).show();
+        }
     }
 }

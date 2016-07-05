@@ -17,14 +17,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="20dp"
-        android:background="@drawable/bg_shape_button"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/bg_grey_brd_green"
+        android:padding="10dp"
         android:gravity="center"
         android:text="@string/select_your_device"
-        android:textColor="@color/text_blue"
-        android:textSize="20sp"
+        android:textColor="@color/text_green"
+        android:textSize="19sp"
         android:textStyle="bold"
-        android:typeface="normal" />
+        android:typeface="sans" />
 
 
     <ScrollView
@@ -34,7 +37,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="40dp"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
@@ -46,12 +49,12 @@
                 android:id="@+id/product_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_product"
+                android:background="@drawable/bg_green_border"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="100dp"
+                    android:layout_width="80dp"
                     android:layout_height="60dp"
                     android:padding="4dp"
                     android:contentDescription="@string/select_your_device"
@@ -63,40 +66,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
                     android:text="@string/elika_460"
-                    android:textColor="@color/text_blue"
-                    android:textSize="20sp"
+                    android:textColor="@color/text_green"
+                    android:textSize="18sp"
                     android:textStyle="normal"
-                    android:typeface="normal"
-                    tools:ignore="RtlHardcoded" />
-            </LinearLayout>
-
-
-            <!-- Product 2 -->
-            <LinearLayout
-                android:id="@+id/product_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:background="@drawable/bg_product"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="60dp"
-                    android:contentDescription="@string/select_your_device"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/elika_92" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/elika_92"
-                    android:textColor="@color/text_blue"
-                    android:textSize="20sp"
-                    android:textStyle="normal"
-                    android:typeface="normal"
+                    android:typeface="sans"
                     tools:ignore="RtlHardcoded" />
             </LinearLayout>
 
@@ -106,12 +79,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:background="@drawable/bg_product"
+                android:background="@drawable/bg_green_border"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="100dp"
+                    android:layout_width="80dp"
                     android:layout_height="60dp"
                     android:contentDescription="@string/select_your_device"
                     android:scaleType="centerInside"
@@ -122,12 +95,44 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
                     android:text="@string/elika_76"
-                    android:textColor="@color/text_blue"
-                    android:textSize="20sp"
+                    android:textColor="@color/text_green"
+                    android:textSize="18sp"
                     android:textStyle="normal"
-                    android:typeface="normal"
+                    android:typeface="sans"
                     tools:ignore="RtlHardcoded" />
             </LinearLayout>
+
+
+            <!-- Product 2 -->
+            <LinearLayout
+                android:id="@+id/product_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_green_border"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:contentDescription="@string/select_your_device"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/elika_92" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:text="@string/elika_92"
+                    android:textColor="@color/text_green"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:typeface="sans"
+                    tools:ignore="RtlHardcoded" />
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

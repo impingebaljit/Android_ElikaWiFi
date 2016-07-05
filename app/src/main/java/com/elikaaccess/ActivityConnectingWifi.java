@@ -2,6 +2,7 @@ package com.elikaaccess;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
@@ -10,25 +11,46 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.elikaaccess.utils.GIFView;
 
 import java.util.List;
 
 public class ActivityConnectingWifi extends Activity {
 
     private Context context = this;
-    private TextView txtStatus;
+    private int tryWifi = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connecting);
 
+
+        View view = findViewById(R.id.include);
+        view.findViewById(R.id.imgBack).setVisibility(View.GONE);
+        view.findViewById(R.id.txtTitle).setVisibility(View.VISIBLE);
+        ((TextView) view.findViewById(R.id.txtTitle)).setText(getResources().getString(R.string.searching_elika));
+        view.findViewById(R.id.imgBack).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivitySetupWizard.wifiManager != null)
+                    ActivitySetupWizard.wifiManager.disconnect();
+                finish();
+            }
+        });
+
+
+        GIFView gifView = (GIFView) findViewById(R.id.gifView);
+        gifView.setImageResource(R.drawable.wifi_loader);
+
+
+
         ImageView imageView = (ImageView) findViewById(R.id.imgProduct);
         TextView textView = (TextView) findViewById(R.id.txtSSID);
-        txtStatus = (TextView) findViewById(R.id.txtStatus);
 
         final ScanResult result = (ScanResult) getIntent().getExtras().get("scanResult");
         if (result != null) {
@@ -56,6 +78,7 @@ public class ActivityConnectingWifi extends Activity {
                 connectWiFi(result);
             }
         }, 500);
+
 
     }
 
@@ -125,6 +148,8 @@ public class ActivityConnectingWifi extends Activity {
                 conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
             }
 
+            wifiManager.disconnect(); // Disconnect from current Wifi point first.
+
             int networkId = wifiManager.addNetwork(conf);
 
             Log.v("rht", "Add result " + networkId);
@@ -150,8 +175,6 @@ public class ActivityConnectingWifi extends Activity {
                     if (isReconnected) {
                         connectStatus(networkSSID);
                     }
-
-
                     break;
                 }
             }
@@ -163,6 +186,9 @@ public class ActivityConnectingWifi extends Activity {
 
     private void connectStatus(final String networkSSID) {
 
+        final Intent intent = new Intent(context, ActivityWifiConnectStatus.class);
+        intent.putExtra("SSID", networkSSID);
+
         new Handler().postDelayed(new Runnable() {
             @SuppressWarnings("deprecation")
             @Override
@@ -172,19 +198,40 @@ public class ActivityConnectingWifi extends Activity {
 
                 if (mWifi.isAvailable())
                     if (mWifi.isConnected()) {
-                        Toast.makeText(context, "Connected to \"" + networkSSID + "\" successfully", Toast.LENGTH_SHORT).show();
-                        txtStatus.setText("Connected to \"" + networkSSID + "\" successfully");
+                        //Toast.makeText(context, "Connected to \"" + networkSSID + "\" successfully", Toast.LENGTH_SHORT).show();
+                        intent.putExtra("status", "success");
+                        startActivity(intent);
+                        finish();
+                        //txtStatus.setText("Connected to \"" + networkSSID + "\" successfully");
                     }
                     else if (mWifi.isFailover()) {
-                        Toast.makeText(context, "Failed to connect to \"" + networkSSID + "\", Please try again.", Toast.LENGTH_SHORT).show();
-                        txtStatus.setText("Failed to connect to \"" + networkSSID + "\", Please try again");
+                        //Toast.makeText(context, "Failed to connect to \"" + networkSSID + "\", Please try again.", Toast.LENGTH_SHORT).show();
+                        //txtStatus.setText("Failed to connect to \"" + networkSSID + "\", Please try again");
+                        intent.putExtra("status", "failure");
+                        startActivity(intent);
+                        finish();
                     }
-                    else
+                    else if (tryWifi >= 30)
+                    {
+
+                        if (ActivitySetupWizard.wifiManager != null && ActivitySetupWizard.wifiManager.isWifiEnabled()) {
+                            ActivitySetupWizard.wifiManager.disconnect();
+                        }
+                        intent.putExtra("status", "failure");
+                        startActivity(intent);
+                        finish();
+                    }
+                else
                         connectStatus(networkSSID);
                 else {
-                    Toast.makeText(context, "It seems Wifi is turned off, Please try again", Toast.LENGTH_SHORT).show();
-                    txtStatus.setText("It seems Wifi is turned off, Please try again");
+                    /*Toast.makeText(context, "It seems Wifi is turned off, Please try again", Toast.LENGTH_SHORT).show();
+                    txtStatus.setText("It seems Wifi is turned off, Please try again");*/
+                    intent.putExtra("status", "failure");
+                    startActivity(intent);
+                    finish();
                 }
+
+                tryWifi++;
             }
         }, 1000);
 

@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
+import com.elikaaccess.utils.Preferences;
+
 public class ActivitySelectDevice extends Activity implements View.OnClickListener {
 
     private Context context = this;
@@ -43,21 +45,37 @@ public class ActivitySelectDevice extends Activity implements View.OnClickListen
 
                 switch (v.getId()) {
                     case R.id.product_1:
+                        Preferences.getInstance(context)
+                                .setProductNameImg(
+                                        getResources()
+                                                .getString(R.string.elika_460), R.drawable.elika_460);
+
                         intent.putExtra("product", 1);
                         startActivity(intent);
-                        v.setBackgroundResource(R.drawable.bg_product);
+                        v.setBackgroundResource(R.drawable.bg_green_border);
                         break;
 
                     case R.id.product_2:
+
+                        Preferences.getInstance(context)
+                                .setProductNameImg(
+                                        getResources()
+                                                .getString(R.string.elika_92), R.drawable.elika_92);
+
                         intent.putExtra("product", 2);
                         startActivity(intent);
-                        v.setBackgroundResource(R.drawable.bg_product);
+                        v.setBackgroundResource(R.drawable.bg_green_border);
                         break;
 
                     case R.id.product_3:
+                        Preferences.getInstance(context)
+                                .setProductNameImg(
+                                        getResources()
+                                                .getString(R.string.elika_76), R.drawable.elika_76);
+
                         intent.putExtra("product", 3);
                         startActivity(intent);
-                        v.setBackgroundResource(R.drawable.bg_product);
+                        v.setBackgroundResource(R.drawable.bg_green_border);
                         break;
 
                     case R.id.imgBack:
