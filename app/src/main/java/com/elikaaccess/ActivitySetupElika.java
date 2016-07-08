@@ -29,9 +29,6 @@ public class ActivitySetupElika extends Activity implements View.OnClickListener
 
         findViewById(R.id.textSetup).setOnClickListener(this);
         findViewById(R.id.imgSetup).setOnClickListener(this);
-
-
-
     }
 
     @Override
@@ -48,7 +45,7 @@ public class ActivitySetupElika extends Activity implements View.OnClickListener
                         break;
 
                     case R.id.imgSetup:
-                        startActivity(new Intent(context, ActivitySearchLocalWifi.class)); //ActivitySelectDevice
+                        startActivity(new Intent(context, ActivitySelectDevice.class)); //ActivityLocalWifi
                         break;
 
                 }

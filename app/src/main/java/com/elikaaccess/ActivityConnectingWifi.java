@@ -1,28 +1,36 @@
 package com.elikaaccess;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.elikaaccess.utils.GIFView;
+import com.elikaaccess.utils.Preferences;
 
 import java.util.List;
 
 public class ActivityConnectingWifi extends Activity {
 
+    private final int RETRY_ATTEMPTS = 20;
     private Context context = this;
     private int tryWifi = 0;
+    private WifiManager wifiManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,20 +65,8 @@ public class ActivityConnectingWifi extends Activity {
             textView.setText(result.SSID);
         }
 
-        switch (getIntent().getExtras().getInt("product")) {
-            case 1:
-                imageView.setImageResource(R.drawable.elika_460);
-                break;
-
-            case 2:
-                imageView.setImageResource(R.drawable.elika_92);
-                break;
-
-            case 3:
-                imageView.setImageResource(R.drawable.elika_76);
-                break;
-        }
-
+        imageView.setImageResource(Preferences.getInstance(context).getProductImg());
+        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -85,7 +81,7 @@ public class ActivityConnectingWifi extends Activity {
 
     private void connectWiFi(ScanResult scanResult) {
         try {
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
 
             Log.e("LOG", "Item clicked, SSID " + scanResult.SSID + ", Security : " + scanResult.capabilities);
 
@@ -150,6 +146,12 @@ public class ActivityConnectingWifi extends Activity {
 
             wifiManager.disconnect(); // Disconnect from current Wifi point first.
 
+            System.out.println("Removing Network ::" + wifiManager.getConnectionInfo().getNetworkId());
+            System.out.println("Network removed::" + wifiManager.removeNetwork(wifiManager.getConnectionInfo().getNetworkId())); // Remove the Account first.
+
+            wifiManager.removeNetwork(wifiManager.getConnectionInfo().getNetworkId());
+            System.out.println("Saving removed::" + wifiManager.saveConfiguration());
+
             int networkId = wifiManager.addNetwork(conf);
 
             Log.v("rht", "Add result " + networkId);
@@ -197,21 +199,28 @@ public class ActivityConnectingWifi extends Activity {
                 NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
                 if (mWifi.isAvailable())
-                    if (mWifi.isConnected()) {
-                        //Toast.makeText(context, "Connected to \"" + networkSSID + "\" successfully", Toast.LENGTH_SHORT).show();
-                        intent.putExtra("status", "success");
-                        startActivity(intent);
-                        finish();
-                        //txtStatus.setText("Connected to \"" + networkSSID + "\" successfully");
+                    if (mWifi.isConnected()
+                            &&
+                            (wifiManager.getConnectionInfo().getSSID().equals(networkSSID)
+                            ||
+                            wifiManager.getConnectionInfo().getSSID().equals("\"" + networkSSID + "\""))) {
+
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                            showMAlert(intent);
+                        else
+                        {
+                            intent.putExtra("status", "success");
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                     else if (mWifi.isFailover()) {
-                        //Toast.makeText(context, "Failed to connect to \"" + networkSSID + "\", Please try again.", Toast.LENGTH_SHORT).show();
-                        //txtStatus.setText("Failed to connect to \"" + networkSSID + "\", Please try again");
                         intent.putExtra("status", "failure");
                         startActivity(intent);
                         finish();
                     }
-                    else if (tryWifi >= 30)
+                    else if (tryWifi >= RETRY_ATTEMPTS)
                     {
 
                         if (ActivitySetupWizard.wifiManager != null && ActivitySetupWizard.wifiManager.isWifiEnabled()) {
@@ -224,8 +233,6 @@ public class ActivityConnectingWifi extends Activity {
                 else
                         connectStatus(networkSSID);
                 else {
-                    /*Toast.makeText(context, "It seems Wifi is turned off, Please try again", Toast.LENGTH_SHORT).show();
-                    txtStatus.setText("It seems Wifi is turned off, Please try again");*/
                     intent.putExtra("status", "failure");
                     startActivity(intent);
                     finish();
@@ -236,6 +243,34 @@ public class ActivityConnectingWifi extends Activity {
         }, 1000);
 
 
+    }
+
+    private void showMAlert(final Intent intent) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setTitle("Connected to device");
+        builder.setMessage("If you are connected to wrong wifi device. " +
+                "Then please try to reconnect after removing old enabled wifi connection manually from Settings.");
+        builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                finish();
+            }
+        });
+
+        builder.setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                intent.putExtra("status", "success");
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        builder.show();
     }
 
 }

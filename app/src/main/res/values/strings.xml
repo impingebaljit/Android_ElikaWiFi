@@ -1,10 +1,11 @@
 <resources>
-    <string name="app_name">ElikaWifi</string>
+    <string name="app_name">Elika Access System</string>
     <string name="setup_elika">Setup Elika Device</string>
     <string name="select_your_device">Select your Device</string>
     <string name="select_elika_wifi">Select the Elika Wi-Fi</string>
     <string name="waiting_4_connection">Waiting for connection…</string>
     <string name="looking_4_wifi">Looking for available\nWifi Networks…</string>
+    <string name="connection_success">Configuration successful</string>
 
     <string name="elika_460">Elika 460</string>
     <string name="elika_92">Elika 92</string>
@@ -16,6 +17,7 @@
     <string name="searching_elika">Searching Elika</string>
     <string name="searching_wifi">Searching Wifi</string>
     <string name="choose_network">Choose a network…</string>
+    <string name="configration">Configuration</string>
 
 
 

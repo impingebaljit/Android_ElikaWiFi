@@ -15,13 +15,14 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/wifi_search"
+        android:icon="@drawable/icon_green"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name=".utils.MyApp"
+        android:name=".application.MyApp"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup" >
         <activity
@@ -55,6 +56,9 @@
             android:name="com.elikaaccess.ActivitySearchLocalWifi"
             android:screenOrientation="portrait" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="45441b1b4d13e814e26fb1e88f8720629f9ec665" />
     </application>
 
 </manifest>

@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,7 +62,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         this.wifiStateChanges();
 
-        updateList();
+        //updateList();
     }
 
     @Override
@@ -118,9 +119,11 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 ScanResult result = listAvailableWifi.get(position);
-                if (!result.capabilities.toUpperCase().contains("WPA")
-                        && !result.capabilities.toUpperCase().contains("WPA"))
 
+                //System.out.println("Remove:" + removeNetwork(result));
+
+                if (!result.capabilities.toUpperCase().contains("WPA")
+                        && !result.capabilities.toUpperCase().contains("WEP"))
                     callNextScreen(result, ""); // Open network
                 else
                     askForPassword(result); // Password protected network
@@ -130,10 +133,25 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         Log.e("LOG", "Total wifi : " + listAvailableWifi.size());
     }
 
+    @SuppressWarnings("unused")
+    private boolean removeNetwork(ScanResult result)
+    {
+        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+
+        for( WifiConfiguration i : list ) {
+            Log.e("SSID:" + result.SSID, " with :: " + i.SSID);
+            if (i.SSID.equals("\"" + result.SSID + "\"")) {
+                wifiManager.removeNetwork(i.networkId);
+                wifiManager.saveConfiguration();
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     protected void onDestroy() {
-
         if (receiveWifiResults != null)
             unregisterReceiver(receiveWifiResults);
 
@@ -162,8 +180,20 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             @Override
             public void onClick(View v) {
                 editText.setError(null);
+                int length = editText.getText().length();
+                if ( length > 0) {
+                    if (scanResult.capabilities.toUpperCase().contains("WEP")) {
+                        if (!(length == 5 || length == 13 ||length == 10 || length == 26)) {
+                            Toast.makeText(context, "Please enter password of 5, 10, 13 or 26 characters.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                    else if (scanResult.capabilities.toUpperCase().contains("WPA"))
+                    if (length < 8 || length > 63) {
+                        Toast.makeText(context, "Password too short. Please enter password minimum 8 to 63 characters.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                if (editText.getText().length() > 0) {
                     callNextScreen(scanResult, editText.getText().toString());
                     dialog.dismiss();
                 } else {
@@ -186,7 +216,6 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     private void callNextScreen(ScanResult scanResult, String password)
     {
         Intent intent = new Intent(context, ActivityConnectingWifi.class);
-        intent.putExtra("product", getIntent().getExtras().getInt("product"));
         intent.putExtra("password", password);
         intent.putExtra("scanResult", scanResult);
         startActivity(intent);
