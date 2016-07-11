@@ -3,6 +3,7 @@ package com.elikaaccess;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +37,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     private LocationManager locationManager;
     private ListView listViewWifi;
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 101;
+    private ProgressDialog pDiaog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         setContentView(R.layout.activity_setup_wizard);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        this.pDialog();
 
         View view = findViewById(R.id.include);
         view.findViewById(R.id.imgBack).setVisibility(View.VISIBLE);
@@ -54,6 +57,13 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         /** register a receiver to get all wifi results **/
         registerReceiver(receiveWifiResults, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+    }
+
+    void pDialog()
+    {
+        pDiaog = new ProgressDialog(context);
+        pDiaog.setMessage("Laoding ...");
+        pDiaog.setCancelable(false);
     }
 
     @Override
@@ -84,6 +94,8 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             wifiManager.setWifiEnabled(true);
 
         wifiManager.startScan();
+        if (pDiaog != null)
+            pDiaog.show();
     }
 
     private BroadcastReceiver receiveWifiResults = new BroadcastReceiver() {
@@ -92,6 +104,9 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         public void onReceive(Context c, Intent intent) {
             /** Update list once scan is complete **/
             Log.e("LOG", "Wifi scanning complete");
+
+            if (pDiaog != null && pDiaog.isShowing())
+                pDiaog.dismiss();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
