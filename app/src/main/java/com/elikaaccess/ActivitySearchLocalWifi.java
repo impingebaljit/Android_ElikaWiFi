@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -59,11 +60,12 @@ public class ActivitySearchLocalWifi extends Activity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed(); // remove it and do last
 
-        Intent intent = new Intent(context, ActivitySetupElika.class);
+       /* Intent intent = new Intent(context, ActivitySetupElika.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish();
+        finish();*/ // By haps
     }
 
     @Override
@@ -107,10 +109,30 @@ public class ActivitySearchLocalWifi extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 if (rowsWifi.get(position).getEncryption().contains("WEP") ||
-                        rowsWifi.get(position).getNetworkType().contains("WPA"))
-                        askForPassword(rowsWifi.get(position));
+                        rowsWifi.get(position).getAuthentication().contains("WPA"))
+                    askForPassword(rowsWifi.get(position));
                 else
                     new ConnectWifi(rowsWifi.get(position)).execute(); // OPEN Network
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Wifi wifi = rowsWifi.get(position);
+                String text = "Name:" + wifi.getSSID()
+                        + "\nBSSID:" + wifi.getBSSID()
+                        + "\nSignal:" + wifi.getRSSI()
+                        + "\nAuth:" + wifi.getAuthentication()
+                        + "\nEncryption:" + wifi.getEncryption()
+                        + "\nNetwork:" + wifi.getNetworkType();
+
+
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+
+
+                return false;
             }
         });
 
@@ -123,21 +145,20 @@ public class ActivitySearchLocalWifi extends Activity {
             @Override
             public void run() {
                 new ParseUrl(
-                        "http://urtestsite.com/projects/MobileApps/Pejman_%20Karimi/Elika/apis/site_survey.html")
+                        "http://10.10.100.254/EN/site_survey.html")
                         .execute();
             }
         }, 1000);
     }
 
 
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private class ParseUrl extends AsyncTask<Void, Void, Void>
     {
         private String url;
         private List<Elements> elements = new ArrayList<>();
 
 
-        ParseUrl(String url)
+        public ParseUrl(String url)
         {
             this.url = url;
         }
@@ -147,7 +168,9 @@ public class ActivitySearchLocalWifi extends Activity {
         protected Void doInBackground(Void... params) {
 
             try {
-                Document document = Jsoup.connect(url).get();
+                Document document = Jsoup.connect(url).timeout(10* 1000).get();
+
+                Log.e("Document data::", "" + document.text());
 
                 elements.clear();
 
@@ -170,31 +193,36 @@ public class ActivitySearchLocalWifi extends Activity {
             rows.clear();
             rowsWifi.clear();
 
-            int x;
-            for (x = 2; x < elements.size() - 1; x++)
+            for (int x = 3; x < elements.size() - 1; x++)
             {
-                Elements element = elements.get(x);
-                String SSID     = element.get(1).text();
-                String BSSID    = element.get(2).text();
-                String Authentication   = element.get(3).text();
-                //String Channel  = element.get(4).text();
-                String Encryption       = element.get(5).text();
-                String Network          = element.get(6).text();
+                Elements element    = elements.get(x);
+                String SSID     =   element.get(1).text(); // Name
+                String BSSID    =   element.get(2).text(); // Mac Address
+                String RSSI     =   element.get(3).text(); // %age signals
+                String Channel  =   element.get(4).text(); // No of channels
+                String Encryption       =   element.get(5).text(); // Key authentication types (AES,WEP)
+                String Authentication   =   element.get(6).text(); // Wifi Auth Type (Ope, Shared, WPA)
+                String NetworkType      =   element.get(7).text(); // Infrastructure
+
+                /** For unique cases where we find no SSID name for any wifi **/
+                if (RSSI.startsWith("ABOVE")) {
+                    RSSI = BSSID + "%";
+
+                    String[] split = SSID.split(" ");
+                    if (split.length > 0)
+                        BSSID = split[0];
+                    SSID = "- No name Wifi -";
+                }
+
 
                 Wifi wifi = new Wifi();
                 wifi.setSSID(SSID);
                 wifi.setBSSID(BSSID);
+                wifi.setRSSI(RSSI);
+                wifi.setChannel(Channel);
                 wifi.setAuthentication(Authentication);
                 wifi.setEncryption(Encryption);
-                wifi.setNetworkType(Network);
-
-
-
-
-                /*for (Element elem : element)
-                {
-                    response += "/" + elem.text();
-                }*/
+                wifi.setNetworkType(NetworkType);
 
                 rows.add(SSID);
                 rowsWifi.add(wifi);
@@ -234,11 +262,22 @@ public class ActivitySearchLocalWifi extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            return performPostCall("http://urtestsite.com/others/ghan/api.php", wifi);
+            return performPostCall("http://10.10.100.254/EN/do_cmd.html", wifi);
         }
 
 
-        public String  performPostCall(String requestURL, Wifi wifi) {
+        public String performPostCall(String requestURL, Wifi wifi) {
+            /**
+             * [wifiDict setObject:[NSString stringWithFormat:@"81723904=%@", array[0] ] forKey:@"SET0"]; //ssid_name
+             [wifiDict setObject:[NSString stringWithFormat:@"81068544=%@", array[1] ] forKey:@"SET1"]; //apcli_bssid
+             [wifiDict setObject:[NSString stringWithFormat:@"81264896=%@", array[3] ] forKey:@"SET6"]; //Enty_Wep
+             // [wifiDict setObject:array[3] forKey:@"Channel"];
+             [wifiDict setObject:[NSString stringWithFormat:@"81199616=%@", array[4] ] forKey:@"SET2"]; //Encryption Type
+             [wifiDict setObject:[NSString stringWithFormat:@"81134080=%@", array[5] ] forKey:@"SET3"]; //Security mode
+
+             wifiDict setObject:@"LAN" forKey:@"CMD"];
+             [wifiDict setObject:@"M2M%20Web%20Server.html" forKey:@"GO”];
+             */
 
             URL url;
             String response = "";
@@ -257,14 +296,7 @@ public class ActivitySearchLocalWifi extends Activity {
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(os, "UTF-8"));
 
-
-               /* wifi.setSSID(SSID); // ssid_name
-                wifi.setBSSID(BSSID); // apcli_bssid
-                wifi.setAuthentication(Authentication); // S_EnTyWEP
-                wifi.setEncryption(Encryption); // S_EncryptionType
-                wifi.setNetworkType(Network);// S_SecurityMode */
-
-                Map<String, String> postDataParams = new HashMap<>();
+              /*  Map<String, String> postDataParams = new HashMap<>();
                 postDataParams.put("ssid_name", wifi.getSSID());
                 postDataParams.put("apcli_bssid", wifi.getBSSID());
                 postDataParams.put("S_SecurityMode", wifi.getNetworkType());
@@ -275,6 +307,38 @@ public class ActivitySearchLocalWifi extends Activity {
                     postDataParams.put("S_EnTyWEP", wifi.getAuthentication());
                 } else if (wifi.getNetworkType().contains("WPA")) {
                     postDataParams.put("S_EnTy_Pass_P", wifi.getPassKey());
+                }*/
+
+                Map<String, String> postDataParams = new HashMap<>();
+
+                if (wifi != null) {
+                    // For saving configurations
+                    postDataParams.put("SET0", "81723904=" + wifi.getSSID());
+                    postDataParams.put("SET1", "81068544=" + wifi.getBSSID());
+                    postDataParams.put("SET3", "81134080=" + wifi.getAuthentication());
+                    postDataParams.put("SET2", "81199616=" + wifi.getEncryption());
+                    postDataParams.put("CMD", "LAN");
+                    postDataParams.put("GO", "M2M%20Web%20Server.html");
+
+                    if (wifi.getEncryption().contains("WEP")) {
+                        postDataParams.put("SET4", "81330688=" + wifi.getPassKey());
+                        postDataParams.put("SET6", "81264896=" + wifi.getChannel());
+                    } else if (wifi.getNetworkType().contains("WPA")) {
+                        postDataParams.put("SET5", "81658368=" + wifi.getPassKey());
+                    }
+                }
+
+                else
+                {
+                    /*[restartDict setObject:@"SYS_CONF" forKey:@"CMD"];
+                    [restartDict setObject:@"M2M%20Web%20Server.html" forKey:@"GO"];
+                    [restartDict setObject:@"0" forKey:@"CCMD"];*/
+
+                    // For Rebooting
+                    postDataParams.put("CMD", "SYS_CONF");
+                    postDataParams.put("GO", "M2M%20Web%20Server.html");
+                    postDataParams.put("CCMD", "0");
+
                 }
 
                 writer.write(getPostDataString(postDataParams));
@@ -329,16 +393,63 @@ public class ActivitySearchLocalWifi extends Activity {
 
             try
             {
-                JSONObject object = new JSONObject(s);
+                //JSONObject object = new JSONObject(s);
                 // {"stutus":"Information logged"}
-                if (object.has("stutus"))
+                if (s.contains("Set Successfully"))
+                {
+                    //Toast.makeText(context, object.getString("stutus"), Toast.LENGTH_SHORT).show();
+                    searchingView.setVisibility(View.GONE);
+                    listingView.setVisibility(View.GONE);
+                    layerSuccess.setVisibility(View.VISIBLE);
+                    txtTitle.setText(getResources().getString(R.string.configration));
+
+
+                    new RebootCall().execute();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private class RebootCall extends AsyncTask<Void, Void, String>
+    {
+        private ProgressDialog dialog = null;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            dialog = new ProgressDialog(context);
+            dialog.setMessage("Rebooting device ...");
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return new ConnectWifi(null).performPostCall("http://10.10.100.254/EN/restart.html", null);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            if (dialog != null && dialog.isShowing())
+                dialog.dismiss();
+
+            try
+            {
+                /*if (s.contains("Set Successfully"))
                 {
                     //Toast.makeText(context, object.getString("stutus"), Toast.LENGTH_SHORT).show();
                     searchingView.setVisibility(View.GONE);
                     listingView.setVisibility(View.GONE);
                     layerSuccess.setVisibility(View.VISIBLE);
                     txtTitle.setText(getResources().getString(R.string.configration ));
-                }
+                }*/
             }
             catch (Exception e)
             {

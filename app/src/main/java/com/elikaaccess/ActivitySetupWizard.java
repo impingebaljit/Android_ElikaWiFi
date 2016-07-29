@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.elikaaccess.adapter.WifiScanAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActivitySetupWizard extends Activity implements View.OnClickListener {
@@ -38,6 +39,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     private ListView listViewWifi;
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 101;
     private ProgressDialog pDiaog = null;
+    private List<ScanResult> listAvailableWifi = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +126,10 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     };
 
     private void updateList() {
-        final List<ScanResult> listAvailableWifi = wifiManager.getScanResults();
+        listAvailableWifi = wifiManager.getScanResults();
+
+        getElikaWifiList(); // re-arrange list
+
         WifiScanAdapter scanAdapter = new WifiScanAdapter(context, listAvailableWifi);
         listViewWifi.setAdapter(scanAdapter);
         scanAdapter.notifyDataSetChanged();
@@ -146,6 +151,18 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         });
 
         Log.e("LOG", "Total wifi : " + listAvailableWifi.size());
+    }
+
+    private void getElikaWifiList() {
+
+        List<ScanResult> listReturn = new ArrayList<>();
+        for (ScanResult result : this.listAvailableWifi)
+            if (result.SSID.toLowerCase().startsWith("elika"))
+                listReturn.add(result);
+
+        this.listAvailableWifi = listReturn;
+
+
     }
 
     @SuppressWarnings("unused")
@@ -210,6 +227,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
                     }
 
                     callNextScreen(scanResult, editText.getText().toString());
+
                     dialog.dismiss();
                 } else {
                     editText.requestFocus();

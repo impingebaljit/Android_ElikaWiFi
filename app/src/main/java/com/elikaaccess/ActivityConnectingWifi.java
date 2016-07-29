@@ -93,7 +93,7 @@ public class ActivityConnectingWifi extends Activity {
             conf.priority = 40;
 
             if (scanResult.capabilities.toUpperCase().contains("WEP")) {
-                Log.v("rht", "Configuring WEP");
+                Log.e("WIFI", "Configuring WEP");
                 conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
                 conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 conf.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
@@ -115,7 +115,7 @@ public class ActivityConnectingWifi extends Activity {
                 conf.wepTxKeyIndex = 0;
 
             } else if (scanResult.capabilities.toUpperCase().contains("WPA")) {
-                Log.v("rht", "Configuring WPA");
+                Log.e("WIFI", "Configuring WPA");
 
                 conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 conf.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
@@ -130,7 +130,7 @@ public class ActivityConnectingWifi extends Activity {
                 conf.preSharedKey = "\"" + networkPass + "\"";
 
             } else {
-                Log.v("rht", "Configuring OPEN network");
+                Log.e("WIFI", "Configuring OPEN network");
                 conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
                 conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 conf.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
@@ -149,28 +149,28 @@ public class ActivityConnectingWifi extends Activity {
             System.out.println("Network removed::" + wifiManager.removeNetwork(wifiManager.getConnectionInfo().getNetworkId())); // Remove the Account first.
 
             wifiManager.removeNetwork(wifiManager.getConnectionInfo().getNetworkId());
-            System.out.println("Saving removed::" + wifiManager.saveConfiguration());
+            System.out.println("Saving removed network::" + wifiManager.saveConfiguration());
 
             int networkId = wifiManager.addNetwork(conf);
 
-            Log.v("rht", "Add result " + networkId);
+            Log.v("WIFI", "Add results: " + networkId);
 
             List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
 
             for (WifiConfiguration i : list) {
                 if (i.SSID != null && i.SSID.equals("\"" + networkSSID + "\"")) {
-                    Log.v("rht", "WifiConfiguration SSID " + i.SSID);
+                    Log.v("WIFI", "WifiConfiguration SSID " + i.SSID);
 
                     boolean isDisconnected = wifiManager.disconnect();
-                    Log.v("rht", "isDisconnected : " + isDisconnected);
+                    Log.v("WIFI", "isDisconnected : " + isDisconnected);
 
                     boolean isEnabled = wifiManager.enableNetwork(i.networkId, true);
-                    Log.v("rht", "isEnabled : " + isEnabled);
+                    Log.v("WIFI", "isEnabled : " + isEnabled);
 
                     boolean isReconnected = wifiManager.reconnect();
-                    Log.v("rht", "isReconnected : " + isReconnected);
+                    Log.v("WIFI", "isReconnected : " + isReconnected);
 
-                    Log.v("rht", "+++++++++++NEXT++++++++++++ == " + i);
+                    Log.v("WIFI", "+++++++++++NEXT++++++++++++ == " + i);
 
 
                     if (isReconnected) {
@@ -186,6 +186,8 @@ public class ActivityConnectingWifi extends Activity {
     }
 
     private void connectStatus(final String networkSSID) {
+
+        Log.e("WIFI-Manager", "+++++++++++ DETECTING WIFI +++++++++++++");
 
         final Intent intent = new Intent(context, ActivityWifiConnectStatus.class);
         intent.putExtra("SSID", networkSSID);
@@ -209,22 +211,26 @@ public class ActivityConnectingWifi extends Activity {
                             showMAlert(intent);
                         else
                         {
+                            Log.e("WIFI-Manager", "___SUCCESS____");
                             intent.putExtra("status", "success");
                             startActivity(intent);
                             finish();
                         }
                     }
                     else if (mWifi.isFailover()) {
+                        Log.e("WIFI-Manager", "___Failure____");
                         intent.putExtra("status", "failure");
                         startActivity(intent);
                         finish();
                     }
                     else if (tryWifi >= RETRY_ATTEMPTS)
                     {
+                        Log.e("WIFI-Manager", "___Retry____");
 
                         if (ActivitySetupWizard.wifiManager != null && ActivitySetupWizard.wifiManager.isWifiEnabled()) {
                             ActivitySetupWizard.wifiManager.disconnect();
                         }
+                        Log.e("WIFI-Manager", "___Failure-In____");
                         intent.putExtra("status", "failure");
                         startActivity(intent);
                         finish();
@@ -232,6 +238,7 @@ public class ActivityConnectingWifi extends Activity {
                 else
                         connectStatus(networkSSID);
                 else {
+                    Log.e("WIFI-Manager", "___Failure-Out____");
                     intent.putExtra("status", "failure");
                     startActivity(intent);
                     finish();
