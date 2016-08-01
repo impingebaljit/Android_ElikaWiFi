@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 
 public class Preferences {
 
+    public static final String SERVER = "http://10.10.100.254/EN/";
+
 
     private String productName = "productName";
     private String productImg = "productImg";

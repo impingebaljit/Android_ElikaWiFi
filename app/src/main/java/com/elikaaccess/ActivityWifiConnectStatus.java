@@ -13,8 +13,8 @@ import android.widget.TextView;
 public class ActivityWifiConnectStatus extends Activity {
 
     private Context context = this;
-    private TextView txtStatus, txtTitle;
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +24,7 @@ public class ActivityWifiConnectStatus extends Activity {
         View view = findViewById(R.id.include);
         view.findViewById(R.id.imgBack).setVisibility(View.VISIBLE);
         view.findViewById(R.id.txtTitle).setVisibility(View.VISIBLE);
-        txtTitle = (TextView) view.findViewById(R.id.txtTitle);
+        TextView txtTitle = (TextView) view.findViewById(R.id.txtTitle);
         txtTitle.setText(getResources().getString(R.string.searching_elika));
 
         view.findViewById(R.id.imgBack).setOnClickListener(new View.OnClickListener() {
@@ -38,7 +38,7 @@ public class ActivityWifiConnectStatus extends Activity {
 
         final String status = this.getIntent().getStringExtra("status");
 
-        txtStatus = (TextView) findViewById(R.id.txtStatus);
+        TextView txtStatus = (TextView) findViewById(R.id.txtStatus);
         Button btnNext = (Button) findViewById(R.id.btnNext);
 
 

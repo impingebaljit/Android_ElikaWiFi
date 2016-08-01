@@ -5,10 +5,12 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -25,7 +27,6 @@ import com.elikaaccess.model.Wifi;
 import com.elikaaccess.utils.GIFView;
 import com.elikaaccess.utils.Preferences;
 
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -57,15 +58,16 @@ public class ActivitySearchLocalWifi extends Activity {
     private LinearLayout searchingView, listingView, layerSuccess;
     private ImageView imgBack;
     private TextView txtTitle;
+    private ListView listView;
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed(); // remove it and do last
+        //super.onBackPressed(); // remove it and do last
 
-       /* Intent intent = new Intent(context, ActivitySetupElika.class);
+        Intent intent = new Intent(context, ActivitySetupElika.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish();*/ // By haps
+        finish(); // By haps
     }
 
     @Override
@@ -100,7 +102,7 @@ public class ActivitySearchLocalWifi extends Activity {
         searchingView = (LinearLayout) findViewById(R.id.layer_searching);
         listingView = (LinearLayout) findViewById(R.id.layer_listing);
         layerSuccess = (LinearLayout) findViewById(R.id.layer_success);
-        ListView listView = (ListView) findViewById(R.id.listWifi);
+        listView = (ListView) findViewById(R.id.listWifi);
         adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rows);
         listView.setAdapter(adapter);
 
@@ -144,15 +146,15 @@ public class ActivitySearchLocalWifi extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                new ParseUrl(
-                        "http://10.10.100.254/EN/site_survey.html")
+                new ParseUrl( Preferences.SERVER +
+                        "site_survey.html")
                         .execute();
             }
         }, 1000);
     }
 
 
-    private class ParseUrl extends AsyncTask<Void, Void, Void>
+    private class ParseUrl extends AsyncTask<Void, Void, String>
     {
         private String url;
         private List<Elements> elements = new ArrayList<>();
@@ -165,7 +167,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
 
             try {
                 Document document = Jsoup.connect(url).timeout(10* 1000).get();
@@ -180,6 +182,7 @@ public class ActivitySearchLocalWifi extends Activity {
                         elements.add(tds);
                     }
 
+                return String.valueOf(elements.size());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -188,7 +191,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
         @SuppressWarnings("StatementWithEmptyBody")
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(String s) {
 
             rows.clear();
             rowsWifi.clear();
@@ -228,6 +231,23 @@ public class ActivitySearchLocalWifi extends Activity {
                 rowsWifi.add(wifi);
             }
 
+            TextView  textView = new TextView(context);
+            textView.setTextSize(15f);
+            textView.setTextColor(Color.DKGRAY);
+            textView.setGravity(Gravity.CENTER_HORIZONTAL);
+
+
+            if (s == null)
+            {
+                textView.setText("Error while communication with device, Please try again.");
+                listView.setEmptyView(textView);
+            }
+            else if (elements.size() == 0)
+            {
+                textView.setText("No wifi found, Please try again.");
+                listView.setEmptyView(textView);
+            }
+
             if (adapter != null)
                 adapter.notifyDataSetChanged();
 
@@ -262,7 +282,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            return performPostCall("http://10.10.100.254/EN/do_cmd.html", wifi);
+            return performPostCall(Preferences.SERVER + "do_cmd.html", wifi);
         }
 
 
@@ -404,7 +424,13 @@ public class ActivitySearchLocalWifi extends Activity {
                     txtTitle.setText(getResources().getString(R.string.configration));
 
 
-                    new RebootCall().execute();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            new RebootCall().execute();
+                        }
+                    }, 200);
+
                 }
             }
             catch (Exception e)
@@ -430,7 +456,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            return new ConnectWifi(null).performPostCall("http://10.10.100.254/EN/restart.html", null);
+            return new ConnectWifi(null).performPostCall(Preferences.SERVER + "restart.html", null);
         }
 
         @Override
@@ -440,21 +466,7 @@ public class ActivitySearchLocalWifi extends Activity {
             if (dialog != null && dialog.isShowing())
                 dialog.dismiss();
 
-            try
-            {
-                /*if (s.contains("Set Successfully"))
-                {
-                    //Toast.makeText(context, object.getString("stutus"), Toast.LENGTH_SHORT).show();
-                    searchingView.setVisibility(View.GONE);
-                    listingView.setVisibility(View.GONE);
-                    layerSuccess.setVisibility(View.VISIBLE);
-                    txtTitle.setText(getResources().getString(R.string.configration ));
-                }*/
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            // Rebooted device.
         }
     }
 
