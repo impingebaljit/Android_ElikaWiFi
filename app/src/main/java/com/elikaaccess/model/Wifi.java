@@ -6,7 +6,7 @@ import android.os.Parcelable;
 
 public class Wifi implements Parcelable {
 
-    private String SSID, BSSID, RSSI, encryption, authentication, channel, passKey, networkType;
+    private String SSID, BSSID, RSSI, encryption, authentication, channel, passKey = "", networkType;
 
     public String getSSID() {
         return SSID;
@@ -36,7 +36,7 @@ public class Wifi implements Parcelable {
         return channel;
     }
 
-    public void setChannel(String encryption) {
+    public void setChannel(String channel) {
         this.channel = channel;
     }
 

@@ -68,7 +68,7 @@
 
     </LinearLayout>
 
-
+    <!-- LISTING -->
     <LinearLayout
         android:id="@+id/layer_listing"
         android:layout_width="match_parent"
@@ -92,6 +92,16 @@
             android:id="@+id/listWifi"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/txtNoData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_devices"
+            android:textColor="@color/text_green"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:padding="10dp"/>
     </LinearLayout>
 
 
@@ -108,11 +118,23 @@
             android:id="@+id/txtStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/connection_success"
+            android:padding="15dp"
+            android:gravity="center"
+            android:text="@string/success_story"
             android:textSize="18sp"
             android:textStyle="normal"
             android:textColor="@color/text_green"
             />
+
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:background="@color/elika_green"
+            android:text="@string/close"/>
 
     </LinearLayout>
 

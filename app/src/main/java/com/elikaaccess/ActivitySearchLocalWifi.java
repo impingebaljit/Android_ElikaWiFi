@@ -56,7 +56,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
     private ArrayAdapter<String> adapter;
     private LinearLayout searchingView, listingView, layerSuccess;
-    private ImageView imgBack;
+    private ImageView imgBack, imgRefresh;
     private TextView txtTitle;
     private ListView listView;
 
@@ -78,17 +78,35 @@ public class ActivitySearchLocalWifi extends Activity {
 
         View view = findViewById(R.id.include);
         imgBack = (ImageView) view.findViewById(R.id.imgBack);
+        imgRefresh = (ImageView) view.findViewById(R.id.imgHelp);
+        imgRefresh.setImageResource(R.drawable.refresh_real);
         imgBack.setVisibility(View.GONE);
         imgBack.setImageResource(R.drawable.home);
 
-        view.findViewById(R.id.txtTitle).setVisibility(View.VISIBLE);
         txtTitle = (TextView) view.findViewById(R.id.txtTitle);
+        txtTitle.setVisibility(View.VISIBLE);
         txtTitle.setText(getResources().getString(R.string.searching_wifi));
 
-        view.findViewById(R.id.imgBack).setOnClickListener(new View.OnClickListener() {
+
+        findViewById(R.id.btnClose).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
+            }
+        });
+
+        imgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        imgRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imgRefresh.setFocusable(false);
+                imgRefresh.setImageResource(R.drawable.refresh_blank);
+                new ParseUrl( Preferences.SERVER +"site_survey.html").execute();
             }
         });
 
@@ -170,7 +188,7 @@ public class ActivitySearchLocalWifi extends Activity {
         protected String doInBackground(Void... params) {
 
             try {
-                Document document = Jsoup.connect(url).timeout(10* 1000).get();
+                Document document = Jsoup.connect(url).timeout(15000).get();
 
                 Log.e("Document data::", "" + document.text());
 
@@ -256,13 +274,17 @@ public class ActivitySearchLocalWifi extends Activity {
             layerSuccess.setVisibility(View.GONE);
 
             imgBack.setVisibility(View.VISIBLE);
+            imgRefresh.setVisibility(View.VISIBLE);
+
+            imgRefresh.setFocusable(true);
+            imgRefresh.setImageResource(R.drawable.refresh_real);
         }
     }
 
 
     private class ConnectWifi extends AsyncTask<Void, Void, String>
     {
-        Wifi wifi;
+        private Wifi wifi;
 
         public ConnectWifi(Wifi wifi)
         {
@@ -273,6 +295,8 @@ public class ActivitySearchLocalWifi extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            imgRefresh.setVisibility(View.GONE);
 
             dialog = new ProgressDialog(context);
             dialog.setCancelable(false);
@@ -331,21 +355,40 @@ public class ActivitySearchLocalWifi extends Activity {
 
                 Map<String, String> postDataParams = new HashMap<>();
 
+                /*NSMutableDictionary *wifiDict = [NSMutableDictionary new];
+                [wifiDict setObject:[NSString stringWithFormat:@"81723904=%@", array[0] ] forKey:@"SET0"]; //ssid_name
+                [wifiDict setObject:@"81068544=" forKey:@"SET5"]; //apcli_bssid
+                [wifiDict setObject:[NSString stringWithFormat:@"81264896=%@", array[3] ] forKey:@"SET4"]; //Enty_Wep
+                [wifiDict setObject:[NSString stringWithFormat:@"81199616=%@", array[4] ] forKey:@"SET1"]; //Encryption Type
+                [wifiDict setObject:[NSString stringWithFormat:@"81134080=%@", array[5] ] forKey:@"SET2"]; //Security mode
+                [wifiDict setObject:@"LAN" forKey:@"CMD"];
+                [wifiDict setObject:@"M2M%20Web%20Server.html" forKey:@"GO"];
+
+                [selectedWifiDict setObject:[NSString stringWithFormat:@"81330688="] forKey:@"SET3"];*/
+
                 if (wifi != null) {
                     // For saving configurations
                     postDataParams.put("SET0", "81723904=" + wifi.getSSID());
-                    postDataParams.put("SET1", "81068544=" + wifi.getBSSID());
-                    postDataParams.put("SET3", "81134080=" + wifi.getAuthentication());
-                    postDataParams.put("SET2", "81199616=" + wifi.getEncryption());
+                    postDataParams.put("SET1", "81199616=" + wifi.getEncryption());
+                    postDataParams.put("SET2", "81134080=" + wifi.getAuthentication());
+                    //postDataParams.put("SET3", "81330688=" + wifi.getPassKey()); // IF NONE, key = "";
+                    postDataParams.put("SET4", "81264896=" + wifi.getChannel());
+                    postDataParams.put("SET5", "81068544="); // + wifi.getBSSID());
                     postDataParams.put("CMD", "LAN");
                     postDataParams.put("GO", "M2M%20Web%20Server.html");
 
-                    if (wifi.getEncryption().contains("WEP")) {
-                        postDataParams.put("SET4", "81330688=" + wifi.getPassKey());
-                        postDataParams.put("SET6", "81264896=" + wifi.getChannel());
-                    } else if (wifi.getNetworkType().contains("WPA")) {
-                        postDataParams.put("SET5", "81658368=" + wifi.getPassKey());
-                    }
+
+
+                    if (wifi.getEncryption().contains("NONE"))
+                        postDataParams.put("SET3", "81330688=");
+                    else if (wifi.getEncryption().contains("WEP"))
+                        postDataParams.put("SET3", "81330688=" + wifi.getPassKey());
+                    else if (wifi.getAuthentication().contains("WPA"))
+                        postDataParams.put("SET3", "81658368=" + wifi.getPassKey());
+
+
+                    Log.e("Saving data", "Encr: " + wifi.getEncryption() + " / Auth:" + wifi.getAuthentication());
+
                 }
 
                 else
@@ -421,6 +464,7 @@ public class ActivitySearchLocalWifi extends Activity {
                     searchingView.setVisibility(View.GONE);
                     listingView.setVisibility(View.GONE);
                     layerSuccess.setVisibility(View.VISIBLE);
+                    imgRefresh.setVisibility(View.GONE);
                     txtTitle.setText(getResources().getString(R.string.configration));
 
 

@@ -56,6 +56,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         view.findViewById(R.id.imgBack).setOnClickListener(this);
 
         listViewWifi = (ListView) findViewById(R.id.listWifi);
+        findViewById(R.id.txtNoData).setVisibility(View.GONE);
 
         /** register a receiver to get all wifi results **/
         registerReceiver(receiveWifiResults, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -149,6 +150,11 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
                     askForPassword(result); // Password protected network
             }
         });
+
+        if (listAvailableWifi.size() == 0) {
+            findViewById(R.id.txtNoData).setVisibility(View.VISIBLE);
+            listViewWifi.setEmptyView(findViewById(R.id.txtNoData));
+        }
 
         Log.e("LOG", "Total wifi : " + listAvailableWifi.size());
     }

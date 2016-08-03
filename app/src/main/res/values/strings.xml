@@ -6,6 +6,8 @@
     <string name="waiting_4_connection">Waiting for connection…</string>
     <string name="looking_4_wifi">Looking for available\nWifi Networks…</string>
     <string name="connection_success">Configuration successful</string>
+    <string name="success_story">You have successfully configured the Elika Device. You can disconnect your wifi with Elika now and \'forget the network\' to ensure no connectivity when not needed.
+    </string>
 
     <string name="elika_460">Elika 460</string>
     <string name="elika_92">Elika 92</string>
@@ -24,9 +26,11 @@
     <string name="enter_password">Enter password</string>
     <string name="cancel">CANCEL</string>
     <string name="save">SAVE</string>
+    <string name="close">CLOSE</string>
     <string name="join">JOIN</string>
     <string name="try_again">Try Again</string>
     <string name="look_for_wifi">Look for Local Wi-Fi</string>
+    <string name="no_devices">No wifi devices found</string>
 
 
 </resources>

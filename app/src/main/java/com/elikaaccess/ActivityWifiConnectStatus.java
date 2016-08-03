@@ -79,7 +79,7 @@ public class ActivityWifiConnectStatus extends Activity {
                 {
                     Intent intent = new Intent(context, ActivitySearchLocalWifi.class);
                     context.startActivity(intent);
-                    //finish();  // by Haps
+                    finish();  // by Haps
                 }
 
             }
