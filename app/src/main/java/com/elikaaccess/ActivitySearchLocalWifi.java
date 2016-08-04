@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,7 +16,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.elikaaccess.adapter.LocalWifiAdapter;
 import com.elikaaccess.model.Wifi;
 import com.elikaaccess.utils.GIFView;
 import com.elikaaccess.utils.Preferences;
@@ -52,9 +54,9 @@ import javax.net.ssl.HttpsURLConnection;
 public class ActivitySearchLocalWifi extends Activity {
     private Context context = this;
     private List<Wifi> rowsWifi = new ArrayList<>();
-    private List<String> rows = new ArrayList<>();
 
-    private ArrayAdapter<String> adapter;
+    //private ArrayAdapter<String> adapter;
+    private LocalWifiAdapter adapter;
     private LinearLayout searchingView, listingView, layerSuccess;
     private ImageView imgBack, imgRefresh;
     private TextView txtTitle;
@@ -106,7 +108,7 @@ public class ActivitySearchLocalWifi extends Activity {
             public void onClick(View v) {
                 imgRefresh.setFocusable(false);
                 imgRefresh.setImageResource(R.drawable.refresh_blank);
-                new ParseUrl( Preferences.SERVER +"site_survey.html").execute();
+                new ParseUrl(Preferences.SERVER + "site_survey.html").execute();
             }
         });
 
@@ -121,7 +123,8 @@ public class ActivitySearchLocalWifi extends Activity {
         listingView = (LinearLayout) findViewById(R.id.layer_listing);
         layerSuccess = (LinearLayout) findViewById(R.id.layer_success);
         listView = (ListView) findViewById(R.id.listWifi);
-        adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rows);
+        //adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rowsWifi);
+        adapter = new LocalWifiAdapter(context, rowsWifi);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -211,7 +214,6 @@ public class ActivitySearchLocalWifi extends Activity {
         @Override
         protected void onPostExecute(String s) {
 
-            rows.clear();
             rowsWifi.clear();
 
             for (int x = 3; x < elements.size() - 1; x++)
@@ -245,8 +247,10 @@ public class ActivitySearchLocalWifi extends Activity {
                 wifi.setEncryption(Encryption);
                 wifi.setNetworkType(NetworkType);
 
-                rows.add(SSID);
-                rowsWifi.add(wifi);
+
+                if (!NetworkType.toLowerCase().equals("ad hoc")) {
+                    rowsWifi.add(wifi);
+                }
             }
 
             TextView  textView = new TextView(context);
@@ -510,6 +514,8 @@ public class ActivitySearchLocalWifi extends Activity {
             if (dialog != null && dialog.isShowing())
                 dialog.dismiss();
 
+            removeNetwork();
+
             // Rebooted device.
         }
     }
@@ -572,6 +578,25 @@ public class ActivitySearchLocalWifi extends Activity {
 
         dialog.show();
 
+    }
+
+
+    @SuppressWarnings("unused")
+    private boolean removeNetwork()
+    {
+        boolean isConnected = false;
+        WifiManager  wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+
+        for( WifiConfiguration i : list ) {
+            Log.e("LSIT", " SSID :: " + i.SSID);
+            if (i.SSID.contains("Elika")) {
+                wifiManager.removeNetwork(i.networkId);
+                wifiManager.saveConfiguration();
+                isConnected = true;
+            }
+        }
+        return isConnected;
     }
 
 }

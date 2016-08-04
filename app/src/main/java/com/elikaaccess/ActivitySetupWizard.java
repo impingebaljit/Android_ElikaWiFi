@@ -171,22 +171,6 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
     }
 
-    @SuppressWarnings("unused")
-    private boolean removeNetwork(ScanResult result)
-    {
-        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-
-        for( WifiConfiguration i : list ) {
-            Log.e("SSID:" + result.SSID, " with :: " + i.SSID);
-            if (i.SSID.equals("\"" + result.SSID + "\"")) {
-                wifiManager.removeNetwork(i.networkId);
-                wifiManager.saveConfiguration();
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     @Override
     protected void onDestroy() {

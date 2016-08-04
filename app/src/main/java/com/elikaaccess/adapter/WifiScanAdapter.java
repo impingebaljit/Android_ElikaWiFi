@@ -2,6 +2,7 @@ package com.elikaaccess.adapter;
 
 import android.content.Context;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +22,14 @@ public class WifiScanAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater inflater;
     private List list = new ArrayList();
+    private WifiManager wifiManager;
 
 
     public WifiScanAdapter(Context context, List list){
         this.context = context;
         this.list = list;
         inflater = LayoutInflater.from(context);
+        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     }
     @Override
     public int getCount() {
@@ -57,7 +60,9 @@ public class WifiScanAdapter extends BaseAdapter {
 
         ScanResult result = (ScanResult) getItem(position);
 
+        String level = wifiManager.calculateSignalLevel(result.level, 100) + "%";
         holder.name.setText(result.SSID);
+        holder.signal.setText(level);
 
         if (!result.capabilities.toUpperCase().contains("WPA")
                 && !result.capabilities.toUpperCase().contains("WPA"))
@@ -71,11 +76,12 @@ public class WifiScanAdapter extends BaseAdapter {
 
     private class ViewHolder{
         ImageView wifi, lock, right;
-        TextView name;
+        TextView name, signal;
 
         public ViewHolder(View view)
         {
             name = (TextView) view.findViewById(R.id.txtWifiName);
+            signal = (TextView) view.findViewById(R.id.txtWifiSignal);
             wifi = (ImageView) view.findViewById(R.id.icon_wifi);
             lock = (ImageView) view.findViewById(R.id.icon_lock);
             right = (ImageView) view.findViewById(R.id.icon_arrow);
