@@ -66,9 +66,13 @@ public class ActivitySearchLocalWifi extends Activity {
     public void onBackPressed() {
         //super.onBackPressed(); // remove it and do last
 
-        Intent intent = new Intent(context, ActivitySetupElika.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        try {
+            Intent intent = new Intent(context, ActivitySetupElika.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         finish(); // By haps
     }
 
@@ -167,7 +171,7 @@ public class ActivitySearchLocalWifi extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                new ParseUrl( Preferences.SERVER +
+                new ParseUrl(Preferences.SERVER +
                         "site_survey.html")
                         .execute();
             }
@@ -175,14 +179,12 @@ public class ActivitySearchLocalWifi extends Activity {
     }
 
 
-    private class ParseUrl extends AsyncTask<Void, Void, String>
-    {
+    private class ParseUrl extends AsyncTask<Void, Void, String> {
         private String url;
         private List<Elements> elements = new ArrayList<>();
 
 
-        public ParseUrl(String url)
-        {
+        public ParseUrl(String url) {
             this.url = url;
         }
 
@@ -198,10 +200,10 @@ public class ActivitySearchLocalWifi extends Activity {
                 elements.clear();
 
                 Element table = document.select("table").get(0);
-                    for (Element row : table.select("tr")) {
-                        Elements tds = row.select("td");
-                        elements.add(tds);
-                    }
+                for (Element row : table.select("tr")) {
+                    Elements tds = row.select("td");
+                    elements.add(tds);
+                }
 
                 return String.valueOf(elements.size());
             } catch (Exception e) {
@@ -216,56 +218,53 @@ public class ActivitySearchLocalWifi extends Activity {
 
             rowsWifi.clear();
 
-            for (int x = 3; x < elements.size() - 1; x++)
-            {
-                Elements element    = elements.get(x);
-                String SSID     =   element.get(1).text(); // Name
-                String BSSID    =   element.get(2).text(); // Mac Address
-                String RSSI     =   element.get(3).text(); // %age signals
-                String Channel  =   element.get(4).text(); // No of channels
-                String Encryption       =   element.get(5).text(); // Key authentication types (AES,WEP)
-                String Authentication   =   element.get(6).text(); // Wifi Auth Type (Ope, Shared, WPA)
-                String NetworkType      =   element.get(7).text(); // Infrastructure
+            if (elements.size() > 3) // unwanted but added.
+                for (int x = 3; x < elements.size() - 1; x++) {
+                    Elements element = elements.get(x);
+                    String SSID = element.get(1).text(); // Name
+                    String BSSID = element.get(2).text(); // Mac Address
+                    String RSSI = element.get(3).text(); // %age signals
+                    String Channel = element.get(4).text(); // No of channels
+                    String Encryption = element.get(5).text(); // Key authentication types (AES,WEP)
+                    String Authentication = element.get(6).text(); // Wifi Auth Type (Ope, Shared, WPA)
+                    String NetworkType = element.get(7).text(); // Infrastructure
 
-                /** For unique cases where we find no SSID name for any wifi **/
-                if (RSSI.startsWith("ABOVE")) {
-                    RSSI = BSSID + "%";
+                    /** For unique cases where we find no SSID name for any wifi **/
+                    if (RSSI.startsWith("ABOVE")) {
+                        RSSI = BSSID + "%";
 
-                    String[] split = SSID.split(" ");
-                    if (split.length > 0)
-                        BSSID = split[0];
-                    SSID = "- No name Wifi -";
+                        String[] split = SSID.split(" ");
+                        if (split.length > 0)
+                            BSSID = split[0];
+                        SSID = "- No name Wifi -";
+                    }
+
+
+                    Wifi wifi = new Wifi();
+                    wifi.setSSID(SSID);
+                    wifi.setBSSID(BSSID);
+                    wifi.setRSSI(RSSI);
+                    wifi.setChannel(Channel);
+                    wifi.setAuthentication(Authentication);
+                    wifi.setEncryption(Encryption);
+                    wifi.setNetworkType(NetworkType);
+
+
+                    if (!NetworkType.toLowerCase().equals("ad hoc")) {
+                        rowsWifi.add(wifi);
+                    }
                 }
 
-
-                Wifi wifi = new Wifi();
-                wifi.setSSID(SSID);
-                wifi.setBSSID(BSSID);
-                wifi.setRSSI(RSSI);
-                wifi.setChannel(Channel);
-                wifi.setAuthentication(Authentication);
-                wifi.setEncryption(Encryption);
-                wifi.setNetworkType(NetworkType);
-
-
-                if (!NetworkType.toLowerCase().equals("ad hoc")) {
-                    rowsWifi.add(wifi);
-                }
-            }
-
-            TextView  textView = new TextView(context);
+            TextView textView = new TextView(context);
             textView.setTextSize(15f);
             textView.setTextColor(Color.DKGRAY);
             textView.setGravity(Gravity.CENTER_HORIZONTAL);
 
 
-            if (s == null)
-            {
+            if (s == null) {
                 textView.setText("Error while communication with device, Please try again.");
                 listView.setEmptyView(textView);
-            }
-            else if (elements.size() == 0)
-            {
+            } else if (elements.size() == 0) {
                 textView.setText("No wifi found, Please try again.");
                 listView.setEmptyView(textView);
             }
@@ -286,16 +285,15 @@ public class ActivitySearchLocalWifi extends Activity {
     }
 
 
-    private class ConnectWifi extends AsyncTask<Void, Void, String>
-    {
+    private class ConnectWifi extends AsyncTask<Void, Void, String> {
         private Wifi wifi;
 
-        public ConnectWifi(Wifi wifi)
-        {
+        public ConnectWifi(Wifi wifi) {
             this.wifi = wifi;
         }
 
         private ProgressDialog dialog;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -382,7 +380,6 @@ public class ActivitySearchLocalWifi extends Activity {
                     postDataParams.put("GO", "M2M%20Web%20Server.html");
 
 
-
                     if (wifi.getEncryption().contains("NONE"))
                         postDataParams.put("SET3", "81330688=");
                     else if (wifi.getEncryption().contains("WEP"))
@@ -393,10 +390,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
                     Log.e("Saving data", "Encr: " + wifi.getEncryption() + " / Auth:" + wifi.getAuthentication());
 
-                }
-
-                else
-                {
+                } else {
                     /*[restartDict setObject:@"SYS_CONF" forKey:@"CMD"];
                     [restartDict setObject:@"M2M%20Web%20Server.html" forKey:@"GO"];
                     [restartDict setObject:@"0" forKey:@"CCMD"];*/
@@ -413,17 +407,16 @@ public class ActivitySearchLocalWifi extends Activity {
                 writer.flush();
                 writer.close();
                 os.close();
-                int responseCode=conn.getResponseCode();
+                int responseCode = conn.getResponseCode();
 
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     String line;
-                    BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    while ((line=br.readLine()) != null) {
-                        response+=line;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    while ((line = br.readLine()) != null) {
+                        response += line;
                     }
-                }
-                else {
-                    response="Error:" + responseCode;
+                } else {
+                    response = "Error:" + responseCode;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -434,10 +427,10 @@ public class ActivitySearchLocalWifi extends Activity {
             return response;
         }
 
-        private String getPostDataString(Map<String, String> params) throws UnsupportedEncodingException{
+        private String getPostDataString(Map<String, String> params) throws UnsupportedEncodingException {
             StringBuilder result = new StringBuilder();
             boolean first = true;
-            for(Map.Entry<String, String> entry : params.entrySet()){
+            for (Map.Entry<String, String> entry : params.entrySet()) {
                 if (first)
                     first = false;
                 else
@@ -458,12 +451,10 @@ public class ActivitySearchLocalWifi extends Activity {
             if (dialog != null && dialog.isShowing())
                 dialog.dismiss();
 
-            try
-            {
+            try {
                 //JSONObject object = new JSONObject(s);
                 // {"stutus":"Information logged"}
-                if (s.contains("Set Successfully"))
-                {
+                if (s.contains("Set Successfully")) {
                     //Toast.makeText(context, object.getString("stutus"), Toast.LENGTH_SHORT).show();
                     searchingView.setVisibility(View.GONE);
                     listingView.setVisibility(View.GONE);
@@ -480,18 +471,16 @@ public class ActivitySearchLocalWifi extends Activity {
                     }, 200);
 
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
 
-    private class RebootCall extends AsyncTask<Void, Void, String>
-    {
+    private class RebootCall extends AsyncTask<Void, Void, String> {
         private ProgressDialog dialog = null;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -529,7 +518,7 @@ public class ActivitySearchLocalWifi extends Activity {
         ((TextView) dialog.findViewById(R.id.txtSSID)).setText(wifi.getSSID());
 
         final EditText editText = (EditText) dialog.findViewById(R.id.edtPassword);
-        ((Button)dialog.findViewById(R.id.btnSave)).setText("Confirm");
+        ((Button) dialog.findViewById(R.id.btnSave)).setText("Confirm");
         dialog.findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -544,14 +533,11 @@ public class ActivitySearchLocalWifi extends Activity {
                         if (wifi.getAuthentication().equals("1") && !(length == 5 || length == 13)) {
                             Toast.makeText(context, "Please enter password of 5 or 13 characters.", Toast.LENGTH_SHORT).show();
                             return;
-                        }
-                        else if (wifi.getAuthentication().equals("0") && !(length == 10 || length == 26)) {
+                        } else if (wifi.getAuthentication().equals("0") && !(length == 10 || length == 26)) {
                             Toast.makeText(context, "Please enter password of 10 or 26 characters.", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                    }
-
-                    else if (wifi.getNetworkType().contains("WPA")) {
+                    } else if (wifi.getNetworkType().contains("WPA")) {
                         if (length < 8 || length > 63) {
                             Toast.makeText(context, "Password too short. Please enter password minimum 8 to 63 characters.", Toast.LENGTH_SHORT).show();
                             return;
@@ -582,13 +568,12 @@ public class ActivitySearchLocalWifi extends Activity {
 
 
     @SuppressWarnings("unused")
-    private boolean removeNetwork()
-    {
+    private boolean removeNetwork() {
         boolean isConnected = false;
-        WifiManager  wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
 
-        for( WifiConfiguration i : list ) {
+        for (WifiConfiguration i : list) {
             Log.e("LSIT", " SSID :: " + i.SSID);
             if (i.SSID.contains("Elika")) {
                 wifiManager.removeNetwork(i.networkId);

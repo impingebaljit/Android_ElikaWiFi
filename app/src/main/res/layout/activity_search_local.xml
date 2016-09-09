@@ -111,7 +111,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="50dp"
         android:gravity="center_horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical">
 
         <TextView
@@ -134,6 +134,8 @@
             android:textColor="@color/white"
             android:textStyle="bold"
             android:background="@color/elika_green"
+            android:paddingLeft="20sp"
+            android:paddingRight="20sp"
             android:text="@string/close"/>
 
     </LinearLayout>
