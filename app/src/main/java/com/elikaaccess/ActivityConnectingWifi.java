@@ -18,16 +18,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.elikaaccess.utils.GIFView;
 import com.elikaaccess.utils.Preferences;
+
 import java.util.List;
 
 public class ActivityConnectingWifi extends Activity {
 
-    private final int RETRY_ATTEMPTS = 20;
+    private final int RETRY_ATTEMPTS = 25;
     private Context context = this;
     private int tryWifi = 0;
     private WifiManager wifiManager;
+    private ConnectivityManager connManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class ActivityConnectingWifi extends Activity {
 
         imageView.setImageResource(Preferences.getInstance(context).getProductImg());
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -73,14 +78,13 @@ public class ActivityConnectingWifi extends Activity {
 
     }
 
-    private void connectWiFi(ScanResult scanResult)
-    {
+    private void connectWiFi(ScanResult scanResult) {
         try {
 
 
             Log.e("LOG", "Item clicked, SSID " + scanResult.SSID + ", Security : " + scanResult.capabilities);
 
-            String networkSSID = scanResult.SSID;
+            final String networkSSID = scanResult.SSID;
             String networkPass = getIntent().getExtras().getString("password");
 
             WifiConfiguration conf = new WifiConfiguration();
@@ -141,6 +145,7 @@ public class ActivityConnectingWifi extends Activity {
 
             wifiManager.disconnect(); // Disconnect from current Wifi point first.
 
+
             System.out.println("Removing Network ::" + wifiManager.getConnectionInfo().getNetworkId());
             System.out.println("Network removed::" + wifiManager.removeNetwork(wifiManager.getConnectionInfo().getNetworkId())); // Remove the Account first.
 
@@ -160,17 +165,24 @@ public class ActivityConnectingWifi extends Activity {
                     boolean isDisconnected = wifiManager.disconnect();
                     Log.v("WIFI", "isDisconnected : " + isDisconnected);
 
-                    boolean isEnabled = wifiManager.enableNetwork(i.networkId,true);
+                    boolean isEnabled = wifiManager.enableNetwork(i.networkId, true);
                     Log.v("WIFI", "isEnabled : " + isEnabled);
 
-                    boolean isReconnected=wifiManager.reconnect();
+                    boolean isReconnected = wifiManager.reconnect();
                     Log.v("WIFI", "isReconnected : " + isReconnected);
 
                     Log.v("WIFI", "+++++++++++NEXT++++++++++++ == " + i);
 
 
                     if (isReconnected) {
-                        connectStatus(networkSSID);
+                        /** Let's try a delay here too **/
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                connectStatus(networkSSID);
+                            }
+                        }, 500);
+
                     }
                     break;
                 }
@@ -183,7 +195,10 @@ public class ActivityConnectingWifi extends Activity {
 
     private void connectStatus(final String networkSSID) {
 
+        Log.e("Trying", "Wifi:: " + networkSSID);
+
         Log.e("WIFI-Manager", "+++++++++++ DETECTING WIFI +++++++++++++");
+
 
         final Intent intent = new Intent(context, ActivityWifiConnectStatus.class);
         intent.putExtra("SSID", networkSSID);
@@ -192,49 +207,62 @@ public class ActivityConnectingWifi extends Activity {
             @SuppressWarnings("deprecation")
             @Override
             public void run() {
-                ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-                if (mWifi.isAvailable())
+                if (mWifi.isAvailable()) {
                     if (mWifi.isConnected()
                             &&
                             (wifiManager.getConnectionInfo().getSSID().equals(networkSSID)
-                            ||
-                            wifiManager.getConnectionInfo().getSSID().equals("\"" + networkSSID + "\""))) {
+                                    ||
+                                    wifiManager.getConnectionInfo().getSSID().equals("\"" + networkSSID + "\""))) {
 
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                             showMAlert(intent);
-                        else
+                        else {
+                            Log.e("WIFI-Manager", "___SUCCESS____");
+                            intent.putExtra("status", "success");
+                            startActivity(intent);
+                            finish();
+                        }
+                    } else if (mWifi.isFailover()) {
+                        Log.e("WIFI-Manager", "___Failure____");
+                        intent.putExtra("status", "failure");
+                        startActivity(intent);
+                        finish();
+                    } else if (tryWifi >= RETRY_ATTEMPTS) {
+                        Log.e("WIFI-Manager", "___Retry____");
+
+                        if (wifiManager.getConnectionInfo().getSSID().equals(networkSSID)
+                                || wifiManager.getConnectionInfo().getSSID().equals("\"" + networkSSID + "\""))
                         {
                             Log.e("WIFI-Manager", "___SUCCESS____");
                             intent.putExtra("status", "success");
                             startActivity(intent);
                             finish();
                         }
-                    }
-                    else if (mWifi.isFailover()) {
-                        Log.e("WIFI-Manager", "___Failure____");
-                        intent.putExtra("status", "failure");
-                        startActivity(intent);
-                        finish();
-                    }
-                    else if (tryWifi >= RETRY_ATTEMPTS)
-                    {
-                        Log.e("WIFI-Manager", "___Retry____");
+                        else {
 
-                        if (ActivitySetupWizard.wifiManager != null && ActivitySetupWizard.wifiManager.isWifiEnabled()) {
+                            if (ActivitySetupWizard.wifiManager != null && ActivitySetupWizard.wifiManager.isWifiEnabled()) {
+                                ActivitySetupWizard.wifiManager.disconnect();
+                            }
+
+                            //(wifiManager.getConnectionInfo().getSSID().equals(networkSSID)||wifiManager.getConnectionInfo().getSSID().equals("\"" + networkSSID + "\""))
+                            Log.e("WIFI-Manager", "___Failure-In____ Wifi was Available, But connected to " + wifiManager.getConnectionInfo().getSSID());
+                            intent.putExtra("status", "failure");
+                            startActivity(intent);
+                            finish();
+                        }
+                    } else {
+                        if (!wifiManager.getConnectionInfo().getSSID().equals(networkSSID)
+                                && !wifiManager.getConnectionInfo().getSSID().equals("\"" + networkSSID + "\"")
+                                && (ActivitySetupWizard.wifiManager != null && ActivitySetupWizard.wifiManager.isWifiEnabled())) {
                             ActivitySetupWizard.wifiManager.disconnect();
                         }
-                        Log.e("WIFI-Manager", "___Failure-In____");
-                        intent.putExtra("status", "failure");
-                        startActivity(intent);
-                        finish();
-                    }
-                else
                         connectStatus(networkSSID);
-                else {
-                    Log.e("WIFI-Manager", "___Failure-Out____");
+                    }
+                } else {
+                    Log.e("WIFI-Manager", "___Failure-Out____ Wifi Not Available");
                     intent.putExtra("status", "failure");
                     startActivity(intent);
                     finish();
@@ -251,8 +279,9 @@ public class ActivityConnectingWifi extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setCancelable(false);
         builder.setTitle("Connected to device");
-        builder.setMessage("If you are connected to wrong wifi device. " +
-                "Then please try to reconnect after removing old enabled wifi connection manually from Settings.");
+        builder.setMessage("If you are connected to wrong wifi device." +
+                "\nThen please try to reconnect after removing old enabled wifi connection manually from Settings.");
+
         builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

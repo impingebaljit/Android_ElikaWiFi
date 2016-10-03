@@ -192,7 +192,7 @@ public class ActivitySearchLocalWifi extends Activity {
         protected String doInBackground(Void... params) {
 
             try {
-                Document document = Jsoup.connect(url).timeout(15000).get();
+                Document document = Jsoup.connect(url).timeout(20000).get();
 
                 Log.e("Document data::", "" + document.text());
 
