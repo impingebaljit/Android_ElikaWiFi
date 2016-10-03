@@ -37,6 +37,7 @@ public class ActivitySetupElika extends Activity implements View.OnClickListener
         txtSetup.setTextColor(Color.GRAY);
 
         new Handler().postDelayed(new Runnable() {
+            @SuppressWarnings("deprecation")
             @Override
             public void run() {
                 switch (v.getId()) {

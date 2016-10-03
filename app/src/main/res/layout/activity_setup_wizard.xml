@@ -2,9 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:orientation="vertical"
-
     tools:context="com.elikaaccess.ActivitySetupWizard">
 
     <include
@@ -21,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/select_elika_wifi"
+            android:text="@string/select_elika_from_wifi"
             android:textSize="20sp"
             android:textStyle="normal"
             android:typeface="sans"

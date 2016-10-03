@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Elika Access System</string>
+    <string name="app_namee">Elika Wi-Fi</string>
     <string name="setup_elika">Setup Elika Device</string>
     <string name="select_your_device">Select your Device</string>
     <string name="select_elika_wifi">Select the Elika Wi-Fi</string>
+    <string name="select_elika_from_wifi">Select the Elika Wi-Fi from Wi-Fi settings</string>
     <string name="waiting_4_connection">Waiting for connection…</string>
     <string name="looking_4_wifi">Looking for available\nWifi Networks…</string>
     <string name="connection_success">Configuration successful</string>
@@ -31,6 +33,7 @@
     <string name="try_again">Try Again</string>
     <string name="look_for_wifi">Look for Local Wi-Fi</string>
     <string name="no_devices">No wifi devices found</string>
+    <string name="next_step">Next Step</string>
 
 
 </resources>

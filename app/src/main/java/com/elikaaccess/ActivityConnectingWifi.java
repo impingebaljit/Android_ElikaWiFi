@@ -18,10 +18,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.elikaaccess.utils.GIFView;
 import com.elikaaccess.utils.Preferences;
-
 import java.util.List;
 
 public class ActivityConnectingWifi extends Activity {
@@ -54,8 +52,6 @@ public class ActivityConnectingWifi extends Activity {
         GIFView gifView = (GIFView) findViewById(R.id.gifView);
         gifView.setImageResource(R.drawable.wifi_loader);
 
-
-
         ImageView imageView = (ImageView) findViewById(R.id.imgProduct);
         TextView textView = (TextView) findViewById(R.id.txtSSID);
 
@@ -77,8 +73,8 @@ public class ActivityConnectingWifi extends Activity {
 
     }
 
-
-    private void connectWiFi(ScanResult scanResult) {
+    private void connectWiFi(ScanResult scanResult)
+    {
         try {
 
 
@@ -164,10 +160,10 @@ public class ActivityConnectingWifi extends Activity {
                     boolean isDisconnected = wifiManager.disconnect();
                     Log.v("WIFI", "isDisconnected : " + isDisconnected);
 
-                    boolean isEnabled = wifiManager.enableNetwork(i.networkId, true);
+                    boolean isEnabled = wifiManager.enableNetwork(i.networkId,true);
                     Log.v("WIFI", "isEnabled : " + isEnabled);
 
-                    boolean isReconnected = wifiManager.reconnect();
+                    boolean isReconnected=wifiManager.reconnect();
                     Log.v("WIFI", "isReconnected : " + isReconnected);
 
                     Log.v("WIFI", "+++++++++++NEXT++++++++++++ == " + i);

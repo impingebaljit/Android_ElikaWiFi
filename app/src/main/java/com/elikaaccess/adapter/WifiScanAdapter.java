@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.elikaaccess.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +20,12 @@ public class WifiScanAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater inflater;
     private List list = new ArrayList();
-    private WifiManager wifiManager;
 
 
     public WifiScanAdapter(Context context, List list){
         this.context = context;
         this.list = list;
         inflater = LayoutInflater.from(context);
-        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     }
     @Override
     public int getCount() {
@@ -58,9 +54,9 @@ public class WifiScanAdapter extends BaseAdapter {
         else
             holder = (ViewHolder) convertView.getTag();
 
-        ScanResult result = (ScanResult) getItem(position);
+        ScanResult result=(ScanResult)getItem(position);
 
-        String level = wifiManager.calculateSignalLevel(result.level, 100) + "%";
+        String level =WifiManager.calculateSignalLevel(result.level, 100) + "%";
         holder.name.setText(result.SSID);
         holder.signal.setText(level);
 

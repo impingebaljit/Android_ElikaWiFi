@@ -11,10 +11,7 @@ import android.view.View;
 public class GIFView extends View{
 
         private static final int DEFAULT_MOVIEW_DURATION = 1000;
-
-        private int mMovieResourceId;
         private Movie mMovie;
-
         private long mMovieStart = 0;
         private int mCurrentAnimationTime = 0;
 
@@ -32,8 +29,7 @@ public class GIFView extends View{
         }
 
         public void setImageResource(int mvId){
-            this.mMovieResourceId = mvId;
-            mMovie = Movie.decodeStream(getResources().openRawResource(mMovieResourceId));
+            mMovie = Movie.decodeStream(getResources().openRawResource(mvId));
             requestLayout();
         }
 

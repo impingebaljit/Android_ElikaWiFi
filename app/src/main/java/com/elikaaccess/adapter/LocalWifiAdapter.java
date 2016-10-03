@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.elikaaccess.R;
 import com.elikaaccess.model.Wifi;
 
@@ -62,6 +61,9 @@ public class LocalWifiAdapter extends BaseAdapter {
 
         if (wifi.getEncryption().toLowerCase().contains("none"))
             holder.img.setVisibility(View.GONE);
+
+        else
+           holder.img.setVisibility(View.VISIBLE);
 
 
         return convertView;

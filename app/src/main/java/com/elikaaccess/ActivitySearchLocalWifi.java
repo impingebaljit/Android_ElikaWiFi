@@ -1,5 +1,6 @@
 package com.elikaaccess;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -67,7 +68,7 @@ public class ActivitySearchLocalWifi extends Activity {
         //super.onBackPressed(); // remove it and do last
 
         try {
-            Intent intent = new Intent(context, ActivitySetupElika.class);
+            Intent intent = new Intent(context,ActivitySetupElika.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (Exception e) {
@@ -112,7 +113,7 @@ public class ActivitySearchLocalWifi extends Activity {
             public void onClick(View v) {
                 imgRefresh.setFocusable(false);
                 imgRefresh.setImageResource(R.drawable.refresh_blank);
-                new ParseUrl(Preferences.SERVER + "site_survey.html").execute();
+                new ParseUrl(Preferences.SERVER +"site_survey.html").execute();
             }
         });
 
@@ -155,9 +156,7 @@ public class ActivitySearchLocalWifi extends Activity {
                         + "\nEncryption:" + wifi.getEncryption()
                         + "\nNetwork:" + wifi.getNetworkType();
 
-
                 Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-
 
                 return false;
             }
@@ -212,6 +211,7 @@ public class ActivitySearchLocalWifi extends Activity {
             return null;
         }
 
+        @SuppressLint("SetTextI18n")
         @SuppressWarnings("StatementWithEmptyBody")
         @Override
         protected void onPostExecute(String s) {
@@ -308,7 +308,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            return performPostCall(Preferences.SERVER + "do_cmd.html", wifi);
+            return performPostCall(Preferences.SERVER +"do_cmd.html",wifi);
         }
 
 
@@ -386,7 +386,6 @@ public class ActivitySearchLocalWifi extends Activity {
                         postDataParams.put("SET3", "81330688=" + wifi.getPassKey());
                     else if (wifi.getAuthentication().contains("WPA"))
                         postDataParams.put("SET3", "81658368=" + wifi.getPassKey());
-
 
                     Log.e("Saving data", "Encr: " + wifi.getEncryption() + " / Auth:" + wifi.getAuthentication());
 
@@ -478,7 +477,7 @@ public class ActivitySearchLocalWifi extends Activity {
     }
 
 
-    private class RebootCall extends AsyncTask<Void, Void, String> {
+    private class RebootCall extends AsyncTask<Void,Void,String> {
         private ProgressDialog dialog = null;
 
         @Override
@@ -493,7 +492,7 @@ public class ActivitySearchLocalWifi extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            return new ConnectWifi(null).performPostCall(Preferences.SERVER + "restart.html", null);
+            return new ConnectWifi(null).performPostCall(Preferences.SERVER + "restart.html",null);
         }
 
         @Override
@@ -509,6 +508,7 @@ public class ActivitySearchLocalWifi extends Activity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void askForPassword(final Wifi wifi) {
         final Dialog dialog = new Dialog(context);
         dialog.setTitle(wifi.getSSID());
@@ -543,7 +543,6 @@ public class ActivitySearchLocalWifi extends Activity {
                             return;
                         }
                     }
-
 
                     wifi.setPassKey(editText.getText().toString());
                     dialog.dismiss();

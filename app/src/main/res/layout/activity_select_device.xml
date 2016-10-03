@@ -23,7 +23,7 @@
         android:background="@drawable/bg_grey_brd_green"
         android:padding="10dp"
         android:gravity="center"
-        android:text="@string/select_your_device"
+        android:text="@string/select_elika_wifi"
         android:textColor="@color/text_green"
         android:textSize="19sp"
         android:textStyle="bold"
@@ -51,7 +51,8 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_green_border"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                tools:ignore="UselessParent">
 
                 <ImageView
                     android:layout_width="80dp"
@@ -74,7 +75,7 @@
             </LinearLayout>
 
             <!-- Product 3 -->
-            <LinearLayout
+    <!--        <LinearLayout
                 android:id="@+id/product_3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,11 +101,11 @@
                     android:textStyle="normal"
                     android:typeface="sans"
                     tools:ignore="RtlHardcoded" />
-            </LinearLayout>
+            </LinearLayout>-->
 
 
             <!-- Product 2 -->
-            <LinearLayout
+            <!--<LinearLayout
                 android:id="@+id/product_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -130,7 +131,7 @@
                     android:textStyle="normal"
                     android:typeface="sans"
                     tools:ignore="RtlHardcoded" />
-            </LinearLayout>
+            </LinearLayout>-->
 
 
 

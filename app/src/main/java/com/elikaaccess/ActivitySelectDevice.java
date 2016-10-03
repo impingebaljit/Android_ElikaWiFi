@@ -29,8 +29,8 @@ public class ActivitySelectDevice extends Activity implements View.OnClickListen
         view.findViewById(R.id.imgBack).setOnClickListener(this);
 
         findViewById(R.id.product_1).setOnClickListener(this);
-        findViewById(R.id.product_2).setOnClickListener(this);
-        findViewById(R.id.product_3).setOnClickListener(this);
+       // findViewById(R.id.product_2).setOnClickListener(this);
+        //findViewById(R.id.product_3).setOnClickListener(this);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ActivitySelectDevice extends Activity implements View.OnClickListen
                         v.setBackgroundResource(R.drawable.bg_green_border);
                         break;
 
-                    case R.id.product_2:
+                  /*  case R.id.product_2:
 
                         Preferences.getInstance(context)
                                 .setProductNameImg(
@@ -66,9 +66,9 @@ public class ActivitySelectDevice extends Activity implements View.OnClickListen
                         startActivity(intent);
                         v.setBackgroundResource(R.drawable.bg_green_border);
                         break;
-
-                    case R.id.product_3:
-                        Preferences.getInstance(context)
+*/
+                 /*   case R.id.product_3:
+                      Preferences.getInstance(context)
                                 .setProductNameImg(
                                         getResources()
                                                 .getString(R.string.elika_76), R.drawable.elika_76);
@@ -76,7 +76,7 @@ public class ActivitySelectDevice extends Activity implements View.OnClickListen
                         intent.putExtra("product", 3);
                         startActivity(intent);
                         v.setBackgroundResource(R.drawable.bg_green_border);
-                        break;
+                        break;*/
 
                     case R.id.imgBack:
                         finish();

@@ -3,7 +3,6 @@ package com.elikaaccess.utils;
 
 import android.content.Context;
 import android.graphics.Typeface;
-
 import java.lang.reflect.Field;
 
 public final class OverrideFont {

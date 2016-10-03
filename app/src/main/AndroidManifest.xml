@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--suppress DeprecatedClassUsageInspection -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.elikaaccess" >
+    package="com.elikaaccess">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -9,7 +10,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.UPDATE_DEVICE_STATS"
-        tools:ignore="ProtectedPermissions" />
+        tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -19,12 +20,12 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icon_green"
-        android:label="@string/app_name"
+        android:icon="@mipmap/app_icon"
+        android:label="@string/app_namee"
         android:supportsRtl="true"
         android:name=".application.MyApp"
         android:theme="@style/AppTheme"
-        tools:ignore="AllowBackup" >
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning" >
         <activity
             android:name="com.elikaaccess.Splash"
             android:screenOrientation="portrait" >

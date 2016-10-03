@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,9 +24,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.elikaaccess.adapter.WifiScanAdapter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,20 +49,20 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         View view = findViewById(R.id.include);
         view.findViewById(R.id.imgBack).setVisibility(View.VISIBLE);
         view.findViewById(R.id.txtTitle).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.txtTitle)).setText(getResources().getString(R.string.setup_wizard));
+        ((TextView)view.findViewById(R.id.txtTitle)).setText(getResources().getString(R.string.setup_wizard));
         view.findViewById(R.id.imgBack).setOnClickListener(this);
 
         listViewWifi = (ListView) findViewById(R.id.listWifi);
         findViewById(R.id.txtNoData).setVisibility(View.GONE);
 
         /** register a receiver to get all wifi results **/
-        registerReceiver(receiveWifiResults, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        registerReceiver(receiveWifiResults,new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
 
     void pDialog()
     {
         pDiaog = new ProgressDialog(context);
-        pDiaog.setMessage("Laoding ...");
+        pDiaog.setMessage("Loading ...");
         pDiaog.setCancelable(false);
     }
 
@@ -131,7 +128,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         getElikaWifiList(); // re-arrange list
 
-        WifiScanAdapter scanAdapter = new WifiScanAdapter(context, listAvailableWifi);
+        WifiScanAdapter scanAdapter = new WifiScanAdapter(context,listAvailableWifi);
         listViewWifi.setAdapter(scanAdapter);
         scanAdapter.notifyDataSetChanged();
 
@@ -145,7 +142,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
                 if (!result.capabilities.toUpperCase().contains("WPA")
                         && !result.capabilities.toUpperCase().contains("WEP"))
-                    callNextScreen(result, ""); // Open network
+                    callNextScreen(result,""); // Open network
                 else
                     askForPassword(result); // Password protected network
             }
@@ -167,8 +164,6 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
                 listReturn.add(result);
 
         this.listAvailableWifi = listReturn;
-
-
     }
 
 
@@ -216,10 +211,12 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
                         return;
                     }
 
-                    callNextScreen(scanResult, editText.getText().toString());
+                    callNextScreen(scanResult,editText.getText().toString());
 
                     dialog.dismiss();
-                } else {
+                }
+                else {
+
                     editText.requestFocus();
                     editText.setError("Enter password");
                 }
@@ -238,7 +235,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
     private void callNextScreen(ScanResult scanResult, String password)
     {
-        Intent intent = new Intent(context, ActivityConnectingWifi.class);
+        Intent intent = new Intent(context,ActivityConnectingWifi.class);
         intent.putExtra("password", password);
         intent.putExtra("scanResult", scanResult);
         startActivity(intent);

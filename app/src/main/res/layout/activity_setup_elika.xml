@@ -27,7 +27,7 @@
             android:src="@drawable/icon_green"
             android:layout_marginTop="70dp"
             android:scaleType="centerInside"
-            />
+            android:contentDescription="@string/select_elika_from_wifi" />
 
         <TextView
             android:id="@+id/textSetup"
