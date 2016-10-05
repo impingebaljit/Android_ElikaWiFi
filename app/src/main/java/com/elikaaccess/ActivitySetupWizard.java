@@ -2,10 +2,12 @@ package com.elikaaccess;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -35,7 +37,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     private LocationManager locationManager;
     private ListView listViewWifi;
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 101;
-    private ProgressDialog pDiaog = null;
+    private ProgressDialog pDialog = null;
     private List<ScanResult> listAvailableWifi = new ArrayList<>();
 
     @Override
@@ -56,20 +58,19 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         findViewById(R.id.txtNoData).setVisibility(View.GONE);
 
         /** register a receiver to get all wifi results **/
-        registerReceiver(receiveWifiResults,new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        registerReceiver(receiveWifiResults, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
 
     void pDialog()
     {
-        pDiaog = new ProgressDialog(context);
-        pDiaog.setMessage("Loading ...");
-        pDiaog.setCancelable(false);
+        pDialog = new ProgressDialog(context);
+        pDialog.setMessage("Loading ...");
+        pDialog.setCancelable(false);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         this.wifiStateChanges();
 
         //updateList();
@@ -84,6 +85,25 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             //updateList();
             requestToEnableGPS();
         }
+        else
+        {
+            if (pDialog != null && pDialog.isShowing())
+            {
+                pDialog.dismiss();
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Request permissions");
+                builder.setMessage("Your device don't provide access to use Wifi.");
+                builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
     }
 
     /**
@@ -94,8 +114,8 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             wifiManager.setWifiEnabled(true);
 
         wifiManager.startScan();
-        if (pDiaog != null)
-            pDiaog.show();
+        if (pDialog != null)
+            pDialog.show();
     }
 
     private BroadcastReceiver receiveWifiResults = new BroadcastReceiver() {
@@ -105,13 +125,13 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             /** Update list once scan is complete **/
             Log.e("LOG", "Wifi scanning complete");
 
-            if (pDiaog != null && pDiaog.isShowing())
-                pDiaog.dismiss();
+            if (pDialog != null && pDialog.isShowing())
+                pDialog.dismiss();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
                 if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                    requestPermissions(new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION }, REQUEST_CODE_ACCESS_COARSE_LOCATION);
                 else
                     requestToEnableGPS();
             }
