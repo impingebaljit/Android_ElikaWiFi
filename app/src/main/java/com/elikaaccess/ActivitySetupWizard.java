@@ -16,6 +16,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -26,7 +27,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.elikaaccess.adapter.WifiScanAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +54,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         View view = findViewById(R.id.include);
         view.findViewById(R.id.imgBack).setVisibility(View.VISIBLE);
         view.findViewById(R.id.txtTitle).setVisibility(View.VISIBLE);
-        ((TextView)view.findViewById(R.id.txtTitle)).setText(getResources().getString(R.string.setup_wizard));
+        ((TextView) view.findViewById(R.id.txtTitle)).setText(getResources().getString(R.string.setup_wizard));
         view.findViewById(R.id.imgBack).setOnClickListener(this);
 
         listViewWifi = (ListView) findViewById(R.id.listWifi);
@@ -59,10 +62,10 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         /** register a receiver to get all wifi results **/
         registerReceiver(receiveWifiResults, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        handler.postDelayed(runnable, 30 * 1000);
     }
 
-    void pDialog()
-    {
+    private void pDialog() {
         pDialog = new ProgressDialog(context);
         pDialog.setMessage("Loading ...");
         pDialog.setCancelable(false);
@@ -84,11 +87,8 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             Log.e("LOG", "Update Wifi list - GRANTED PERMISSION");
             //updateList();
             requestToEnableGPS();
-        }
-        else
-        {
-            if (pDialog != null && pDialog.isShowing())
-            {
+        } else {
+            if (pDialog != null && pDialog.isShowing()) {
                 pDialog.dismiss();
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Request permissions");
@@ -131,11 +131,10 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
                 if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                    requestPermissions(new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION }, REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ACCESS_COARSE_LOCATION);
                 else
                     requestToEnableGPS();
-            }
-            else {
+            } else {
                 updateList();
                 Log.e("LOG", "Update Wifi list - PreCode");
             }
@@ -148,7 +147,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         getElikaWifiList(); // re-arrange list
 
-        WifiScanAdapter scanAdapter = new WifiScanAdapter(context,listAvailableWifi);
+        WifiScanAdapter scanAdapter = new WifiScanAdapter(context, listAvailableWifi);
         listViewWifi.setAdapter(scanAdapter);
         scanAdapter.notifyDataSetChanged();
 
@@ -162,7 +161,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
                 if (!result.capabilities.toUpperCase().contains("WPA")
                         && !result.capabilities.toUpperCase().contains("WEP"))
-                    callNextScreen(result,""); // Open network
+                    callNextScreen(result, ""); // Open network
                 else
                     askForPassword(result); // Password protected network
             }
@@ -192,6 +191,12 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         if (receiveWifiResults != null)
             unregisterReceiver(receiveWifiResults);
 
+        try {
+            handler.removeCallbacks(runnable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         super.onDestroy();
     }
 
@@ -218,24 +223,22 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             public void onClick(View v) {
                 editText.setError(null);
                 int length = editText.getText().length();
-                if ( length > 0) {
+                if (length > 0) {
                     if (scanResult.capabilities.toUpperCase().contains("WEP")) {
-                        if (!(length == 5 || length == 13 ||length == 10 || length == 26)) {
+                        if (!(length == 5 || length == 13 || length == 10 || length == 26)) {
                             Toast.makeText(context, "Please enter password of 5, 10, 13 or 26 characters.", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                    }
-                    else if (scanResult.capabilities.toUpperCase().contains("WPA"))
-                    if (length < 8 || length > 63) {
-                        Toast.makeText(context, "Password too short. Please enter password minimum 8 to 63 characters.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                    } else if (scanResult.capabilities.toUpperCase().contains("WPA"))
+                        if (length < 8 || length > 63) {
+                            Toast.makeText(context, "Password too short. Please enter password minimum 8 to 63 characters.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                    callNextScreen(scanResult,editText.getText().toString());
+                    callNextScreen(scanResult, editText.getText().toString());
 
                     dialog.dismiss();
-                }
-                else {
+                } else {
 
                     editText.requestFocus();
                     editText.setError("Enter password");
@@ -253,16 +256,14 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
     }
 
-    private void callNextScreen(ScanResult scanResult, String password)
-    {
-        Intent intent = new Intent(context,ActivityConnectingWifi.class);
+    private void callNextScreen(ScanResult scanResult, String password) {
+        Intent intent = new Intent(context, ActivityConnectingWifi.class);
         intent.putExtra("password", password);
         intent.putExtra("scanResult", scanResult);
         startActivity(intent);
     }
 
-    private void requestToEnableGPS()
-    {
+    private void requestToEnableGPS() {
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.getProvider("gps") != null)
             updateList();
         else {
@@ -270,4 +271,26 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             Toast.makeText(context, "Please turn on GPS to avail our services", Toast.LENGTH_LONG).show();
         }
     }
+
+
+    /***
+     * Handler to close
+     **/
+
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if (pDialog != null && pDialog.isShowing()) {
+                pDialog.dismiss();
+
+                Toast.makeText(
+                        context,
+                        "Application is not able to communicate with Wifi hardware",
+                        Toast.LENGTH_LONG).show();
+
+                updateList();
+            }
+        }
+    };
 }
