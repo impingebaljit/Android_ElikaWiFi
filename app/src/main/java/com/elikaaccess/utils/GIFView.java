@@ -8,7 +8,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class GIFView extends View{
+public class GIFView extends View {
 
         private static final int DEFAULT_MOVIEW_DURATION = 1000;
         private Movie mMovie;

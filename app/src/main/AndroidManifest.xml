@@ -23,6 +23,7 @@
         android:icon="@mipmap/app_icon"
         android:label="@string/app_namee"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:name=".application.MyApp"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning" >

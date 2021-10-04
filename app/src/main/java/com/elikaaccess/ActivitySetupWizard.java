@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -76,6 +78,14 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         super.onResume();
         this.wifiStateChanges();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+        {
+            if (!isLocationEnabled()){
+                gpsDialog();
+            }
+
+        }
+
         //updateList();
     }
 
@@ -86,7 +96,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
             // Do something with granted permission
             Log.e("LOG", "Update Wifi list - GRANTED PERMISSION");
             //updateList();
-            requestToEnableGPS();
+//            requestToEnableGPS();
         } else {
             if (pDialog != null && pDialog.isShowing()) {
                 pDialog.dismiss();
@@ -106,9 +116,38 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
         }
     }
 
-    /**
-     * Module to enable device wifi is Wifi is at OFF state
-     **/
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+
+    private void gpsDialog() {
+        new AlertDialog.Builder(context)
+                .setTitle("Elika WIFI App")
+                .setMessage("Please enable GPS location.")
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setIcon(R.mipmap.app_icon)
+                .show();
+    }
+
+
+        /**
+         * Module to enable device wifi is Wifi is at OFF state
+         **/
     private void wifiStateChanges() {
         if (!wifiManager.isWifiEnabled())
             wifiManager.setWifiEnabled(true);
@@ -141,6 +180,7 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         }
     };
+
 
     private void updateList() {
         listAvailableWifi = wifiManager.getScanResults();
@@ -176,7 +216,6 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
     }
 
     private void getElikaWifiList() {
-
         List<ScanResult> listReturn = new ArrayList<>();
         for (ScanResult result : this.listAvailableWifi)
             if (result.SSID.toLowerCase().startsWith("elika"))
@@ -184,7 +223,6 @@ public class ActivitySetupWizard extends Activity implements View.OnClickListene
 
         this.listAvailableWifi = listReturn;
     }
-
 
     @Override
     protected void onDestroy() {
